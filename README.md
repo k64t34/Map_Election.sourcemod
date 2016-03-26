@@ -21,6 +21,8 @@ Known Issues:
 
 
 https://forums.alliedmods.net/showthread.php?p=632031?p=632031
+https://forums.alliedmods.net/showthread.php?p=633808?p=633808
+
 
 
 
