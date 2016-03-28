@@ -1,5 +1,5 @@
 # Map_Election
-Плагин для голосования выбора карты.
+Sourcemod плагин для голосования выбора карты.
 Плагин работает подобно RTV до момента голосования.
 Во время голосования панель выбора карт отображается всё время голосования.
 Игрок может видеть выбор других игроков и изменить свой выбор в пользу другой карты.
@@ -7,6 +7,19 @@
 На время голосования плагин включает sv_alltalk 1, что дает возможность игрокам дополнительно обсудить выбор карты.
 Голосование запускается в начале раунда, предворительно выставив  mp_freeztime  равно времени голосования.
 Т.о. игровоймир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
+
+
+SourceMod plugin for votemap.
+The plugin works like RTV (Rock The Vote) till the moment vote.
+While voting, the panel is displayed all the time of voting.
+The player can see a selection of other players and can change their choice in favor of the other cards.
+
+At the time of voting plugin includes sv_alltalk 1 that allows players to further discuss the choice of cards.
+Voting started at the beginning of the round, putting a prior mp_freeztime equal voting time.
+Thus igrovoymir as it stops at the time of the vote, and the players can fully sostredotocheny to vote.
+
+
+
 
 SourceMod plugin for votemap
 
