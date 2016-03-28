@@ -14,17 +14,15 @@ The plugin works like RTV (Rock The Vote) till the moment vote.
 While voting, the panel is displayed all the time of voting.
 The player can see a selection of other players and can change their choice in favor of the other cards.
 
-At the time of voting plugin includes sv_alltalk 1 that allows players to further discuss the choice of cards.
-Voting started at the beginning of the round, putting a prior mp_freeztime equal voting time.
-Thus igrovoymir as it stops at the time of the vote, and the players can fully sostredotocheny to vote.
+In the period of voting, plugin sets sv_alltalk 1, that allows players to additionally discuss the choice of map.
 
-
-
+Voting starts at the beginning of the round. Plugin sets mp_freeztime equal to voting time.
+Thus, the world stops at the time of the vote, and the players can fully concentrate on the vote.
 
 SourceMod plugin for votemap
 
 Plugin Category:Server Management,General Purpose
-Plugin Game:Any ( But tested CS:S only)
+Plugin Game:Any (But tested in CS:S only)
 Plugin Description: Allow easy addition of custom votes using configuration files
 
 Title:Map Election
@@ -39,7 +37,9 @@ Most people will file feature requests in your thread "Please add A", "Ohh I wou
 Media
 Credits:
 Installation:
+Plans:
 Known Issues:
+
 
 
 https://forums.alliedmods.net/showthread.php?p=632031?p=632031
