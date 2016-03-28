@@ -1,4 +1,9 @@
 # Map_Election
+Плагин для голосования выбора карты.
+Плагин работает подобно RTV до момента голосования.
+Во время голосования панель выбора карт отображается всё время голосования.
+
+
 SourceMod plugin for votemap
 
 Plugin Category:Server Management,General Purpose
