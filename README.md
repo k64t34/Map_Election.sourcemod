@@ -100,3 +100,6 @@ https://forums.alliedmods.net/showthread.php?t=134190
 
 
 https://forums.alliedmods.net/showthread.php?p=2142940
+
+-- Add translations support
+-- Convert more internal stuff into CVARS
