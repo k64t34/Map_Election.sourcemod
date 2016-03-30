@@ -21,9 +21,9 @@ Thus, the world stops at the time of the vote, and the players can fully concent
 
 SourceMod plugin for votemap
 
-Plugin Category:Server Management,General Purpose
+Plugin Category:Server Management
 Plugin Game:Any (But tested in CS:S only)
-Plugin Description: Allow easy addition of custom votes using configuration files
+Plugin Description: 
 
 Title:Map Election
 Feature list:
@@ -37,9 +37,18 @@ Most people will file feature requests in your thread "Please add A", "Ohh I wou
 Media
 Credits:
 Installation:
+1. Download the attached zip archive and extract to your game folder.
+2. 
+Usage:
+say map 
+say map <map_name>
+
 Plans:
 Known Issues:
+-Incoorect language
 Notes:
+Other Information:
+This plugin is meant to be run with Sourcemod 1.7 or above.
 
 
 https://forums.alliedmods.net/showthread.php?p=632031?p=632031
