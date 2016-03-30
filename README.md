@@ -94,3 +94,6 @@ Most people will file feature requests in your thread "Please add A", "Ohh I wou
 Media
 Of course, a description in text is one thing, but a picture (or even better, a video) says more than a thousand words (PER FRAME). Get people to want your plugin, to see what the advantage is of having it, and how awesome/easy it is to use.
 
+https://forums.alliedmods.net/showthread.php?t=134190
+
+
