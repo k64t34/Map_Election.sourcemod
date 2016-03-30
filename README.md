@@ -19,6 +19,8 @@ In the period of voting, plugin sets sv_alltalk 1, that allows players to additi
 Voting starts at the beginning of the round. Plugin sets mp_freeztime equal to voting time.
 Thus, the world stops at the time of the vote, and the players can fully concentrate on the vote.
 
+In my opinion this interface allows you to reach a consensus between the players.
+
 SourceMod plugin for votemap
 
 Plugin Category:Server Management
