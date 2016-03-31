@@ -43,15 +43,17 @@ addons
 Usage:
 say <key_word> [map_name]
 
-Now key_word is map, !map, mapvote,карта, карту.
+Now key_words are map, !map, mapvote,карта, карту.
 Known Issues:
 -Incorrect translation
 -Incorrect language
 
 Plans
-Add select map for vote like RTV.
-Add sound accompaniment.
-Add cvar for customizing key_word
+-Add translations support
+-Add select maps for vote like RTV.
+-Add sound accompaniment.
+-Add cvar for customizing key_word
+-Convert more internal stuff into CVARS
 
 Other Information:
 This plugin is meant to be run with Sourcemod 1.7 or above.
@@ -62,21 +64,6 @@ This is work in progress and is not a final product
 
 https://forums.alliedmods.net/showthread.php?p=632031?p=632031
 https://forums.alliedmods.net/showthread.php?p=633808?p=633808
-
-* Initial release.
-Installation instructions
-If your plugin is NOT of the type "click 'Get Plugin' button, place SMX in the plugins folder and you're done" I highly recommend to write installation and/or configuration instructions for your users.
-Dependencies
-If your plugin has external dependencies (Extensions, other plugins) you have to tell the users this. Of course, most people do this, BUT there is also another type of dependencies, which are custom include files. Tell people why the web compiler doesn't work and supply them with your custom include files, or at least link them to the thread containing them. You could also include them in a special section in your file so the web compiler does work for everyone wanting to get it easily.
-Plans
-Most people will file feature requests in your thread "Please add A", "Ohh I would love to see B". In order to keep the requests under control, you COULD add a "Plans" section in your post, so users don't have to requests features that you already plan on supporting in future versions.
-Media
-Of course, a description in text is one thing, but a picture (or even better, a video) says more than a thousand words (PER FRAME). Get people to want your plugin, to see what the advantage is of having it, and how awesome/easy it is to use.
-
 https://forums.alliedmods.net/showthread.php?t=134190
-
-
 https://forums.alliedmods.net/showthread.php?p=2142940
 
--- Add translations support
--- Convert more internal stuff into CVARS
