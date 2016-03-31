@@ -8,8 +8,11 @@ Sourcemod плагин для голосования выбора карты.
 Голосование запускается в начале раунда, предворительно выставив  mp_freeztime  равно времени голосования.
 Т.о. игровой мир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
 
+Title: Map election
+Descriptione: Map vote with displing 
+Cvar:No cvar yet
+Dependencies: No
 
-SourceMod plugin for votemap.
 The plugin works like RTV (Rock The Vote) till the moment vote.
 While voting, the panel is displayed all the time of voting.
 The player can see a selection of other players and can change their choice in favor of the other cards.
@@ -19,72 +22,46 @@ In the period of voting, plugin sets sv_alltalk 1, that allows players to additi
 Voting starts at the beginning of the round. Plugin sets mp_freeztime equal to voting time.
 Thus, the world stops at the time of the vote, and the players can fully concentrate on the vote.
 
-In my opinion this interface allows you to reach a consensus between the players.
+In my opinion this interface allows to reach a consensus between the players.
 
-SourceMod plugin for votemap
+Pic
 
-Plugin Category:Server Management
-Plugin Game:Any (But tested in CS:S only)
-Plugin Description: 
+Video
 
-Title:Map Election
-Feature list:
-CVAR/Command list:
-Changelog:
+Changelog
 * Initial release.
-1.0: First release
-Installation instructions:
-Dependencies:
-Most people will file feature requests in your thread "Please add A", "Ohh I would love to see B". In order to keep the requests under control, you COULD add a "Plans" section in your post, so users don't have to requests features that you already plan on supporting in future versions.
-Media
-Credits:
-Installation:
-1. Download the attached zip archive and extract to your game folder.
-2. 
-Usage:
-say map 
-say map <map_name>
 
-Plans:
+Installation instructions
+Download the attached zip archive and extract to your game folder.
+Install archive contain:
+addons
+  plugins
+    map_vote.smx
+  transletion
+    map_Elections.phrases.txt 
+
+Usage:
+say <key_word> [map_name]
+
+Now key_word is map, !map, mapvote,карта, карту.
 Known Issues:
--Incoorect language
-Notes:
+-Incorrect translation
+-Incorrect language
+
+Plans
+Add select map for vote like RTV.
+Add sound accompaniment.
+Add cvar for customizing key_word
+
 Other Information:
 This plugin is meant to be run with Sourcemod 1.7 or above.
 
+This is work in progress and is not a final product
+
+----
 
 https://forums.alliedmods.net/showthread.php?p=632031?p=632031
 https://forums.alliedmods.net/showthread.php?p=633808?p=633808
-
-
-
-This is work in progress and is not a final product
-
-
-
-
-
-
-
-Title
-I suppose it would be easiest if the title looked something like "[<game>] <plugin name> (<version>, <date>)" ("[TF2] Team Scramble (v1.2, 2010-06-12)"). This way everybody can quickly see if their favorite plugin updated, or what game a plugin is for without even having to open the thread.
-Description
-A description of what the plugin does. Even though you might think "it's all in the title" it might still be unclear to users what it is exactly that your plugin adds to the game.
-Feature list
-A list of features isn't necessary, and can be part of the description, however if you have a lot of features, a separate list adds clarity.
-CVAR/Command list
-Users shouldn't have to browse through your code for hidden ConVars and commands, you better list them all, including a clear description of what they do.
-Changelog
-It is useful for users to see how active you are, when the last update has been released, what you have fixed/added/changed, therefore a changelog would be nice to have.
-
-An example of a changelog can be:
-Quote:
-2010-01-13 (v1.1)
-
-* Improved the "algorithm".
-* Cleaner code.
-
-2010-01-12 (v1.0)
 
 * Initial release.
 Installation instructions
