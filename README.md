@@ -41,9 +41,9 @@ addons
     map_Elections.phrases.txt 
 
 ##Usage:
-say <key_word> [map_name]
+say key_word [map_name]
 
-Now key_words are map, !map, mapvote,карта, карту.
+Now key_words are map, wantmap, карта, карту.
 ##Known Issues:
 -Incorrect translation
 -Incorrect language
