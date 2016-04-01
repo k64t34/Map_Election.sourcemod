@@ -9,7 +9,7 @@ Sourcemod плагин для голосования выбора карты.
 Т.о. игровой мир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
 
 ##Title: Map election
-##Descriptione: Voting with showing candidates votes. 
+##Descriptione: Provides map voting and immediately showing the choice users.Players can agree during voting  and change their choice to any map.
 ##Cvar:No cvar yet
 ##Dependencies: No
 
