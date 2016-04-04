@@ -1,0 +1,28 @@
+1.Немогу переключить отображение на Английский
+	https://forums.alliedmods.net/archive/index.php/t-141745.html
+	Core Configuration (http://wiki.alliedmods.net/SourceMod_Configuration#Core_Configuration)
+
+
+	addons\sourcemod\configs\core.cfg
+	/**
+	* Language that multilingual enabled plugins and extensions will use to print messages.
+	* Only languages listed in languages.cfg are valid.
+	*
+	* The default value is "en"
+	*/
+	"ServerLang" "en"- "no" "Norwegian"
+	- This will be default language to all, if next setting is "AllowClLanguageVar" "off"
+	/**
+	* Enables or disables whether SourceMod reads a client's cl_language cvar to set 
+	* their language for server-side phrase translation.
+	*
+	* "on" - Translate using the client's language (default)
+	* "off" - Translate using default server's language
+	*/
+	"AllowClLanguageVar" "off"- Enabling this, SM change language by client steam language.
+	- Try this first, before you change "en" to "no". Maybe someone like it by english.
+	
+	
+2. Языки в Sourcemod
+https://wiki.alliedmods.net/Ru:Format_Class_Functions_(SourceMod_Scripting)
+https://wiki.alliedmods.net/Ru:Translations_(SourceMod_Scripting)	

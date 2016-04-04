@@ -1,0 +1,39 @@
+"Phrases"
+{
+    "DemandVote"
+    {
+        "en"            "start vote of choice map"
+		"ru"            "инициировал голосование выбора карты"
+    }
+    "StartVote"
+    {
+        "en"            "Vote for the elections of map begins"
+		"ru"            "Началось голосование за выбор карты"
+    }
+    "MenuTitle"
+    {
+        "en"            "Make your choice"
+		"ru"            "Сделай свой выбор"
+    }
+    "Leave_the_current_map"
+    {
+        "en"            "Leave the current map"
+		"ru"            "Оставить текущую карту"
+    }
+	"Win_Item"
+    {
+        "en"            "Winer is item # "
+		"ru"            "Победил кандидат № "
+    }
+	"noWin_Item"
+    {
+        "en"            "Map does not change"
+		"ru"            "Карта не меняется"
+    }
+	"MapCandidate"
+    {
+        "en"            "nominate map"
+		"ru"            "выставил на выборы карту"
+    }
+
+}

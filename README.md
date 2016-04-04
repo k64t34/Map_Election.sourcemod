@@ -59,11 +59,3 @@ Now key_words are map, wantmap, карта, карту.
 This plugin is meant to be run with Sourcemod 1.7 or above.
 
 This is work in progress and is not a final product
-
-----
-
-https://forums.alliedmods.net/showthread.php?p=632031?p=632031
-https://forums.alliedmods.net/showthread.php?p=633808?p=633808
-https://forums.alliedmods.net/showthread.php?t=134190
-https://forums.alliedmods.net/showthread.php?p=2142940
-
