@@ -15,10 +15,10 @@
 #include <k64t>
 //Constvar
 char cPLUGIN_NAME[]=PLUGIN_NAME;
-char Leave_the_current_map[]="Leave_the_current_map";
+char Leave_the_current_map[]="Do_not_change";
 char snd_votestart[]	={SND_VOTE_START}; //Sound vote start
 char snd_votefinish[]	={SND_VOTE_FINISH};//Sound vote finish
-char PopularMenuItems[][MENU_ITEM_LEN]={"de_dust","de_dust2","de_inferno_pro","de_piranesi","cs_office","de_vostok","de_tuscan","de_aztec","de_cbble","de_chateau","de_nuke","de_tides","de_train","de_catalane_b6","de_industrial_estate","de_island_v2","de_survivor_css","de_oilrig07","de_plaka_css","de_acity","de_oc2"};
+char PopularMenuItems[][MENU_ITEM_LEN]={"de_dust","de_dust2","de_inferno","de_piranesi","cs_office","de_aztec","de_cbble","de_chateau","de_nuke","de_tides","de_train"};
 // ConVar
 Handle mp_freezetime= INVALID_HANDLE; 
 int cvar_mp_freezetime;
@@ -46,7 +46,7 @@ char Title[MENU_ITEM_LEN]; // Title of voting menu
 int CandidateCount;             //Count of candidate item to votemenu
 int VoteMax;
 // DB
-Handle k64tDB=INVALID_HANDLE;	            //  
+//Handle k64tDB=INVALID_HANDLE;	              
 //***********************************************
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
@@ -92,11 +92,12 @@ cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");
     cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");    
     }	
 	
-LoadTranslations("Elections_Map.phrases");
+LoadTranslations("Map_Elections.phrases");
 HookEvent("round_end",		EventRoundEnd);
-RegConsoleCmd("cem", cmd_Elect_Map,"Call elections map");
+//RegConsoleCmd("cem", cmd_Elect_Map,"Call elections map");
 RegConsoleCmd("say", 		Command_Say);
 RegConsoleCmd("say_team",	Command_Say);
+//Sound
 PrecacheSound(snd_votestart,true);
 PrecacheSound(snd_votefinish,true);
 char buffer[PLATFORM_MAX_PATH];
@@ -124,7 +125,7 @@ PrintToServer("[%s] OnMapStart",PLUGIN_NAME);
 g_elect=false;
 g_voting=false;
 CandidateCount=0;
-AutoExecConfig(true, "Elections_Map");
+AutoExecConfig(true, "Map_Elections");
 g_vote_time= GetConVarFloat(cvar_sm_mapvote_voteduration);
 #if defined DEBUG
 g_min_players_demand=1;
@@ -145,6 +146,7 @@ int tdif=g_vote_delay-GetTime();
 if (tdif>0) 
 	{
 	PrintToChat(client,"\4Голосовать можно будет через %d сек.",tdif);
+	
 	return Plugin_Continue;
 	}
 //-> сделать парсинг для добаления нескольких карт. Пример взять из sm_votempa
@@ -289,16 +291,6 @@ for (int i=0;i!=MENU_ITEMS_COUNT;i++)
 vMenu.ExitButton=false;
 CreateTimer(g_vote_time+1.0,EndVote);	
 ReDisplayMenu();
-/*for(int i = 1; i <= MaxClients; i++) 
-	{
-	if (IsClientConnected(i))
-		if (IsClientInGame(i))			
-			if (!IsFakeClient(i))				
-				//if (!DisplayMenu(vMenu, i, g_vote_time))			
-				if (!vMenu.Display(i, g_vote_time))									
-					LogError("DisplayMenu to client %d faild",i);				
-	}*/
-
 CreateTimer(1.0,RefreshMenu,_, TIMER_REPEAT);		
 }
 //*****************************************************************************
@@ -307,18 +299,8 @@ public  Action RefreshMenu(Handle Timer,any Parameters){
 if (g_voting)
 	{
 	g_vote_countdown--;
-	Format(Title,MENU_ITEM_LEN,"%t [осталось %d сек]","MenuTitle",g_vote_countdown);
-	vMenu.SetTitle(Title);	
-	
-	/*for(int i = 1; i <= MaxClients; i++) 
-		{
-		if (IsClientConnected(i))
-			if (IsClientInGame(i))			
-				if (!IsFakeClient(i))										
-					//if (!DisplayMenu(menu, i, g_vote_time))			
-					if (!vMenu.Display(i, g_vote_time))
-						LogError("DisplayMenu to client %d faild",i);				
-		}*/
+	Format(Title,MENU_ITEM_LEN,"%t","MenuTitle",g_vote_countdown);
+	vMenu.SetTitle(Title);
 	if (g_vote_countdown==0)	return Plugin_Stop;
 	else 
 		{
@@ -407,7 +389,6 @@ return Plugin_Handled;
 //***********************************************
 void AddRandomMenuMapItem(){
 //***********************************************
-//char Map[MENU_ITEM_LEN];
 int SizePopularMenuItems=sizeof(PopularMenuItems)-1;
 int IndexPopularMenuItems;
 do 	{
@@ -533,9 +514,7 @@ g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
 int ItemWiner=0;
 int y=-1;
-PrintToChatAll("\4======================");
-PrintToChatAll("\4Результаты голосования");	
-PrintToChatAll("\4----------------------");	
+PrintToChatAll("\4======================\n\4 %T n\4----------------------","VoteResult");
 for (int i=0;i!=MENU_ITEMS_COUNT;i++)
 	{
 	//RemoveMenuItem(menu,i);
@@ -555,8 +534,7 @@ if (ItemWiner>0)
 	#if defined SMLOG
 	LogMessage("ItemWiner=%d %s",ItemWiner,MenuItems[ItemWiner]);
 	#endif
-	PrintToChatAll("\4%t %d - %s","Win_Item",ItemWiner,MenuItems[ItemWiner]);	
-	PrintToChatAll("\4======================");
+	PrintToChatAll("\4%t %d - %s","Win_Item\n\4======================",ItemWiner,MenuItems[ItemWiner]);		
 	ForceChangeLevel(MenuItems[ItemWiner], "map vote");
 	//ServerCommand("sm_map %s",MenuItems[ItemWiner]);
 	}
@@ -569,7 +547,8 @@ if (ItemWiner>0)
 //*****************************************************************************
 public void OnPluginEnd(){
 //*****************************************************************************
-if (k64tDB!=INVALID_HANDLE) SQL_UnlockDatabase(k64tDB); }
+//if (k64tDB!=INVALID_HANDLE) SQL_UnlockDatabase(k64tDB); 
+}
 //*****************************************************************************
 #endinput
 //#C:\pro\SourceMod\MySMcompile.exe "$(FULL_CURRENT_PATH)"
