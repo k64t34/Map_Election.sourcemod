@@ -1,8 +1,8 @@
 "Phrases"
 {
-	"MenuTitle"
+	"VoteMenuTitle"
 	{
-		"ru"            "Сделай свой выбор"
+		"ru"            "Сделай свой выбор[{1}сек осталось]"
 	}
 
 	"Start_Vote_After_Round_End"

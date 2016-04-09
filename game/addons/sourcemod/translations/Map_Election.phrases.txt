@@ -1,8 +1,9 @@
 "Phrases"
 {
-	"MenuTitle"
+	"VoteMenuTitle"
 	{
-		"en"            "Make your choice"
+		"#format"		"{1:d}"
+		"en"            "Make your choice[{1} sec. remaining]"
 	}
 
 	"Start_Vote_After_Round_End"

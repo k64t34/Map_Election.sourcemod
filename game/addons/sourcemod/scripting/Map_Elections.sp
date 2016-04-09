@@ -18,7 +18,7 @@
 #include <k64t>
 
 
-#define MENU_TITLE "Please select a map"
+#define MENU_TITLE "VoteMenuTitle"
 #define ITEM_DO_NOT_CHANGE "Dont Change"
 
 //Constvar
@@ -141,7 +141,7 @@ CandidateCount=0;
 AutoExecConfig(true, "Map_Elections");
 g_vote_time= GetConVarFloat(cvar_sm_mapvote_voteduration);
 #if defined DEBUG
-g_min_players_demand=2;
+g_min_players_demand=1;
 g_vote_delay=GetTime()+1;
 #else
 g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
@@ -216,10 +216,8 @@ SetConVarInt(sv_alltalk, 1);
 vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);
 //vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
 
-Format(Title,MENU_ITEM_LEN,"%t","Please select a map");
-vMenu.SetTitle(MENU_TITLE);
-Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
-strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
+Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
+vMenu.SetTitle(Title);
 //Make random map list
 //\cstrike\cfg\mapcycle_default.txt" - пропустить //
 //\cstrike\cfg\mapcyclet.txt" 
@@ -284,7 +282,10 @@ for (int i=0;i!=MAX_PLAYERS;i++)
 	PlayerVote[i]=-1;
 char ItemShift[MENU_ITEMS_COUNT];
 Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
-for (int i=0;i!=MENU_ITEMS_COUNT;i++)
+Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
+strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
+vMenu.AddItem("", Title);
+for (int i=1;i!=MENU_ITEMS_COUNT;i++)
 	{
 	ItemVote[i]=0;	
 	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i]);
@@ -303,7 +304,7 @@ public  Action RefreshMenu(Handle Timer,any Parameters){
 if (g_voting)
 	{
 	g_vote_countdown--;
-	Format(Title,MENU_ITEM_LEN,"%t [%d sec]",MENU_TITLE,g_vote_countdown);
+	Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
 	vMenu.SetTitle(Title);
 	if (g_vote_countdown==0)	return Plugin_Stop;
 	else 
@@ -480,12 +481,16 @@ else if (action == MenuAction_DisplayItem)
 	LogMessage("MenuAction_DisplayItem %d ",param2);
 	#endif
 	if (param2==0)
-		Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
+		//Format(Title,MENU_ITEM_LEN,"%T",ITEM_DO_NOT_CHANGE);
+		return 0;
 	else
 		{
 		char ItemShift[MENU_ITEMS_COUNT];
-		Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);	
-		Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2]);
+		Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
+		if 	(ItemVote[param2]==0)
+			Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2]);
+		else
+			Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2],ItemVote[param2]);
 		}
 	return RedrawMenuItem(Title);
 	}
