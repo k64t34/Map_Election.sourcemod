@@ -1,18 +1,3 @@
-game\addons\sourcemod\scripting\Map_Elections.sp(65) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(70) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(71) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(76) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(77) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(80) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(82) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(83) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(86) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(88) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(89) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(92) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(95) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(212) : warning 240: 'MenuAction:' is an old-style tag operation; use view_as<MenuAction>(expression) instead
-game\addons\sourcemod\scripting\Map_Elections.sp(531) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(532) : warning 217: loose indentation
-game\addons\sourcemod\scripting\Map_Elections.sp(278) : warning 204: symbol is assigned a value that is never used: "VoteMax"
-game\addons\sourcemod\scripting\Map_Elections.sp(39) : warning 203: symbol is never used: "part2"
+game\addons\sourcemod\scripting\Map_Elections.sp(216) : warning 240: 'MenuAction:' is an old-style tag operation; use view_as<MenuAction>(expression) instead
+game\addons\sourcemod\scripting\Map_Elections.sp(282) : warning 204: symbol is assigned a value that is never used: "VoteMax"
+game\addons\sourcemod\scripting\Map_Elections.sp(46) : warning 203: symbol is never used: "part2"

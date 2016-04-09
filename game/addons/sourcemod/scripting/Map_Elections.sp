@@ -1,4 +1,7 @@
-//#define DEBUG  1
+//-> подавить вывод say map 
+//->PrintToChat(client,"Map %s is not nominated",part1); сделать развернутое объяснение отказа
+//->Добавить счетчик доступных карт к номинации для каждого игрока
+#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
@@ -13,9 +16,13 @@
 #define SND_VOTE_FINISH	"k64t\\votefinish.mp3"
 
 #include <k64t>
+
+
+#define MENU_TITLE "Please select a map"
+#define ITEM_DO_NOT_CHANGE "Dont Change"
+
 //Constvar
 char cPLUGIN_NAME[]=PLUGIN_NAME;
-char Leave_the_current_map[]="Do_not_change";
 char snd_votestart[]	={SND_VOTE_START}; //Sound vote start
 char snd_votefinish[]	={SND_VOTE_FINISH};//Sound vote finish
 char PopularMenuItems[][MENU_ITEM_LEN]={"de_dust","de_dust2","de_inferno","de_piranesi","cs_office","de_aztec","de_cbble","de_chateau","de_nuke","de_tides","de_train"};
@@ -51,7 +58,7 @@ int VoteMax;
 public Plugin myinfo = {
 	name = PLUGIN_NAME,
 	author = PLUGIN_AUTHOR,
-	description = "Provides map voting and immediately showing the choice users.Players can agree during voting and change their choice to any map.",
+	description = "Provides map voting and immediately showing the players choice .Players can agree during voting and change their choice to any map.",
 	version = PLUGIN_VERSION,
 	url = ""};
 //***********************************************
@@ -92,7 +99,13 @@ cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");
     cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");    
     }	
 	
-LoadTranslations("Map_Elections.phrases");
+
+LoadTranslations("common.phrases");
+LoadTranslations("nominations.phrases");
+LoadTranslations("basevotes.phrases");
+LoadTranslations("mapchooser.phrases");
+LoadTranslations("rockthevote.phrases");
+LoadTranslations("Map_Election.phrases.txt");
 HookEvent("round_end",		EventRoundEnd);
 //RegConsoleCmd("cem", cmd_Elect_Map,"Call elections map");
 RegConsoleCmd("say", 		Command_Say);
@@ -128,7 +141,7 @@ CandidateCount=0;
 AutoExecConfig(true, "Map_Elections");
 g_vote_time= GetConVarFloat(cvar_sm_mapvote_voteduration);
 #if defined DEBUG
-g_min_players_demand=1;
+g_min_players_demand=2;
 g_vote_delay=GetTime()+1;
 #else
 g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
@@ -142,13 +155,6 @@ public Action Command_Say(int client, int args){
 #if defined DEBUG
 DebugPrint("Command_Say");
 #endif
-int tdif=g_vote_delay-GetTime();
-if (tdif>0) 
-	{
-	PrintToChat(client,"\4Голосовать можно будет через %d сек.",tdif);
-	
-	return Plugin_Continue;
-	}
 //-> сделать парсинг для добаления нескольких карт. Пример взять из sm_votempa
 GetCmdArgString(argstext, sizeof(argstext));
 StripQuotes(argstext);
@@ -164,7 +170,7 @@ else if (strcmp(part1, "map", false) == 0)
 	cmd_Elect_Map(client,args);
 	return Plugin_Handled;
 	}	
-else if (strcmp(part1, "!map", false) == 0)
+else if (strcmp(part1, "mapvote", false) == 0)
 	{
 	cmd_Elect_Map(client,args);
 	return Plugin_Handled;
@@ -179,9 +185,7 @@ else if (strcmp(part1, "карта", false) == 0)
 	cmd_Elect_Map(client,args);
 	return Plugin_Handled;
 	}
-	
-else	
-	return Plugin_Continue;
+return Plugin_Continue;
 }
 //***********************************************
 public void EventRoundEnd(Handle event, const char[] name,bool dontBroadcast){
@@ -194,7 +198,7 @@ if (!g_elect) return;
 g_elect=false;
 PrecacheSound(snd_votestart,true);
 EmitSoundToAll(snd_votestart);
-PrintToChatAll("\4%t","StartVote");
+PrintToChatAll("%t","Initiated Vote Map");
 
 g_vote_countdown=RoundToCeil(g_vote_time);
 cvar_mp_freezetime=GetConVarInt(mp_freezetime);
@@ -212,9 +216,9 @@ SetConVarInt(sv_alltalk, 1);
 vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);
 //vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
 
-Format(Title,MENU_ITEM_LEN,"%t","MenuTitle");
-vMenu.SetTitle(Title);
-Format(Title,MENU_ITEM_LEN,"%t",Leave_the_current_map);
+Format(Title,MENU_ITEM_LEN,"%t","Please select a map");
+vMenu.SetTitle(MENU_TITLE);
+Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
 //Make random map list
 //\cstrike\cfg\mapcycle_default.txt" - пропустить //
@@ -299,7 +303,7 @@ public  Action RefreshMenu(Handle Timer,any Parameters){
 if (g_voting)
 	{
 	g_vote_countdown--;
-	Format(Title,MENU_ITEM_LEN,"%t","MenuTitle",g_vote_countdown);
+	Format(Title,MENU_ITEM_LEN,"%t [%d sec]",MENU_TITLE,g_vote_countdown);
 	vMenu.SetTitle(Title);
 	if (g_vote_countdown==0)	return Plugin_Stop;
 	else 
@@ -333,20 +337,31 @@ DebugPrint("cmd_Elect_Map");
 #endif
 if (g_voting) return Plugin_Handled;
 if (g_elect) return Plugin_Handled;
+int tdif=g_vote_delay-GetTime();
+if (tdif>0) 
+	{	
+	PrintToChat(client,"%t","RTV Not Allowed");	//RTV "Голосование по смене карты еще недоступно."	
+	if (tdif>60)
+		PrintToChat(client,"%t","Vote Delay Minutes",RoundToCeil(tdif/60.0));	//common "Вы не можете начать новое голосование раньше, чем через {1} минут"
+	else
+		PrintToChat(client,"%t","Vote Delay Seconds",tdif);	
+	return Plugin_Handled;
+	}
 GetClientName(client, Title, MAX_CLIENT_NAME);
 GetCmdArgString(argstext, sizeof(argstext));
 StripQuotes(argstext);
 //-> Если нет аргументов, то выдать пользователю список карт сервера
+PrintToChatAll("%t","Map Election Requested",Title);//"Игрок {1} хочет сменить карту.
 int len, pos;
 while (pos != -1 && CandidateCount!=MENU_ITEMS_COUNT )
 	{	
 		pos = BreakString(argstext[len], part1, sizeof(part1));
 		if (len!=0)
 			{
-			if (AddMenuMapItem(part1))
-				PrintToChatAll("%s %t %s",Title,"MapCandidate",part1);
+			if (AddMenuMapItem(part1))				
+				PrintToChatAll("%t","Map Nominated",Title,part1);//"Игрок {1} предложил {2} для голосование по смене карты."
 			else	
-				PrintToChat(client,"\4Ваша карта %s не добавлена в кандидаты на голосование",part1);
+				PrintToChat(client,"Map %s is not nominated",part1);
 			}
 		if (pos != -1)len += pos;
 	}	
@@ -362,13 +377,12 @@ if (client!=0)
 		{
 		PlayerVote[client-1]++;
 		g_min_players_demand--;
-		PrintToChatAll("%s %t",Title,"DemandVote");
 		#if defined DEBUG	
 		DebugPrint("PlayerVote[%d]=%d",client-1,PlayerVote[client-1]);	
 		#endif		
 		}
 	else
-		PrintToChat(client,"\4%s, %s",Title,"ваш голос уже учтен");	
+		PrintToChat(client,"%s, %t",Title,"Already Nominated");	//rtv "Вы уже предложили карту."
 	}	
 #if defined DEBUG	
 DebugPrint("client=%d g_min_players_demand=%d",client,g_min_players_demand);
@@ -376,12 +390,15 @@ DebugPrint("client=%d g_min_players_demand=%d",client,g_min_players_demand);
 if (g_min_players_demand<=0)		
 	{
 	g_elect=true;
-	PrintToChatAll("\4Голосование начнется сразу после завершения раунда");	
+	PrintToChatAll("%t","Start_Vote_After_Round_End");	//map_election "Голосование начнется сразу после завершения раунда"
+	PrintToChatAll("%t:","Nominated");	//nomination "Предложены для голосования"
 	for (int i=0;i!=MENU_ITEMS_COUNT;i++)PrintToChatAll("%s",MenuItems[i]);
 	}
 else
-	{	
-	PrintToChatAll("\4%s %d %s","Количество заявлений, необходимое для начала голосования - ",g_min_players_demand,". \nКто-нибудь наберите в чате карту");
+	{
+	DebugPrint("cmd_Elect_Map:1");		
+	PrintToChatAll("%t","Number_of_demands",g_min_players_demand); // map_election "Количество заявлений, необходимое для начала голосования - {1}\nКто-нибудь, наберите в чате 'карта'"
+	DebugPrint("cmd_Elect_Map:2");
 	}
 	
 return Plugin_Handled;
@@ -463,7 +480,7 @@ else if (action == MenuAction_DisplayItem)
 	LogMessage("MenuAction_DisplayItem %d ",param2);
 	#endif
 	if (param2==0)
-		Format(Title,MENU_ITEM_LEN,"%t",Leave_the_current_map);
+		Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 	else
 		{
 		char ItemShift[MENU_ITEMS_COUNT];
@@ -514,7 +531,7 @@ g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
 int ItemWiner=0;
 int y=-1;
-PrintToChatAll("\4======================\n\4 %T n\4----------------------","VoteResult");
+PrintToChatAll("======================\n %T n----------------------","VoteResult");
 for (int i=0;i!=MENU_ITEMS_COUNT;i++)
 	{
 	//RemoveMenuItem(menu,i);
@@ -528,13 +545,13 @@ for (int i=0;i!=MENU_ITEMS_COUNT;i++)
 		ItemWiner=i;	
 		}
 	}
-	PrintToChatAll("\4----------------------");	
+	PrintToChatAll("----------------------");	
 if (ItemWiner>0)
 	{
 	#if defined SMLOG
 	LogMessage("ItemWiner=%d %s",ItemWiner,MenuItems[ItemWiner]);
 	#endif
-	PrintToChatAll("\4%t %d - %s","Win_Item\n\4======================",ItemWiner,MenuItems[ItemWiner]);		
+	PrintToChatAll("%t %d - %s","Win_Item\n======================",ItemWiner,MenuItems[ItemWiner]);		
 	ForceChangeLevel(MenuItems[ItemWiner], "map vote");
 	//ServerCommand("sm_map %s",MenuItems[ItemWiner]);
 	}
@@ -542,7 +559,7 @@ if (ItemWiner>0)
 	#if defined SMLOG
 	LogMessage("%t","noWin_Item");
 	#endif
-	PrintToChatAll("\4%t","noWin_Item");	
+	PrintToChatAll("%t","noWin_Item");	
 }
 //*****************************************************************************
 public void OnPluginEnd(){

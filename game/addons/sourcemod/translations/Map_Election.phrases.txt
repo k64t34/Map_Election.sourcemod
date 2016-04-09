@@ -1,45 +1,24 @@
 "Phrases"
 {
-    "DemandVote"
-    {
-        "en"            "initiated a map vote"
-		"ru"            "инициировал голосование выбора карты"
-    }
-    "StartVote"
-    {
-        "en"            "Start the Vote"
-		"ru"            "Началось голосование за выбор карты"
-    }
-    "MenuTitle"
-    {
-		"#format"		"{1:d}"
-        "en"            "Make your choice [{1}sec remaining]"
-		"ru"            "Сделай свой выбор [осталось {1}сек]"
-    }
-    "Do_not_change"
-    {
-        "en"            "Don't change"
-		"ru"            "Оставить текущую карту"
-    }
-	"Win_Item"
-    {
-        "en"            "Winer is item # "
-		"ru"            "Победил кандидат № "
-    }
-	"noWin_Item"
-    {
-        "en"            "Map does not change"
-		"ru"            "Карта не меняется"
-    }
-	"MapCandidate"
-    {
-        "en"            "nominate map"
-		"ru"            "выставил на выборы карту"
-    }
-	"VoteResult"
-    {
-        "en"            "Election returns"
-		"ru"            "Результаты голосования"
-    }
+	"MenuTitle"
+	{
+		"en"            "Make your choice"
+	}
 
+	"Start_Vote_After_Round_End"
+	{
+		"en"            "Voting will begin after the completion of the round"	
+	}
+
+	"Number_of_demands"
+	{
+		"#format"		"{1:d}"
+        "en"            "Number of demands necessary for the start of voting is {1}.\nDoes anyone type in the chat 'map'"	
+	}
+
+	"Map Election Requested"
+	{
+		"#format"	"{1:s}"
+		"en"	"Player {1} wants to rock the vote."
+	}	
 }
