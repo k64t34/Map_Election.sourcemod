@@ -2,14 +2,15 @@
 //->PrintToChat(client,"Map %s is not nominated",part1); сделать развернутое объяснение отказа
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
-#define DEBUG  1
+// Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
+//#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.1"
+#define PLUGIN_VERSION "0.2"
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -46,6 +47,10 @@ Menu vMenu;//Handle menu= INVALID_HANDLE;//VotingMenu
 char part1[32]; //tmp var
 char part2[32]; //tmp var
 char argstext[128]; //tmp var
+
+char key_word[][MENU_ITEM_LEN]={"карта","карту","map","mapvote"}; //key_word :map карту карта
+//char[] key_word = new int[MaxClients]
+
 //Handle VoteTimer=INVALID_HANDLE;
 char MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN];//VotingItems
 int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
@@ -160,7 +165,14 @@ DebugPrint("Command_Say");
 GetCmdArgString(argstext, sizeof(argstext));
 StripQuotes(argstext);
 BreakString(argstext[0], part1, sizeof(part1));
+for (int i=0;i!=sizeof(key_word);i++)
+	if (strcmp(part1, key_word[i], false) == 0)
+		{
+		cmd_Elect_Map(client,args);
+		return Plugin_Handled;
+		}
 //mapvote
+/*
 if (strcmp(part1, "карту", false) == 0)
 	{
 	cmd_Elect_Map(client,args);
@@ -186,6 +198,7 @@ else if (strcmp(part1, "карта", false) == 0)
 	cmd_Elect_Map(client,args);
 	return Plugin_Handled;
 	}
+*/	
 return Plugin_Continue;
 }
 //***********************************************
@@ -304,7 +317,7 @@ public  Action RefreshMenu(Handle Timer,any Parameters){
 //*****************************************************************************
 if (g_voting)
 	{
-	g_vote_countdown--;
+	g_vote_countdown--;	
 	Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
 	vMenu.SetTitle(Title);
 	if (g_vote_countdown==0)	return Plugin_Stop;
@@ -325,10 +338,12 @@ for(int i = 1; i <= MaxClients; i++)
 	{
 	if (IsClientConnected(i))
 		if (IsClientInGame(i))			
-			if (!IsFakeClient(i))				
+			if (!IsFakeClient(i))	
+			{
 			if (!vMenu.Display(i, g_vote_countdown))										
 			//if (!vMenu.Display(i, g_vote_time))									
-					LogError("DisplayMenu to client %d faild",i);				
+					LogError("DisplayMenu to client %d faild",i);
+			}		
 	}
 }	
 //***********************************************
@@ -398,9 +413,7 @@ if (g_min_players_demand<=0)
 	}
 else
 	{
-	DebugPrint("cmd_Elect_Map:1");		
 	PrintToChatAll("%t","Number_of_demands",g_min_players_demand); // map_election "Количество заявлений, необходимое для начала голосования - {1}\nКто-нибудь, наберите в чате 'карта'"
-	DebugPrint("cmd_Elect_Map:2");
 	}
 	
 return Plugin_Handled;
@@ -566,7 +579,7 @@ else
 	LogMessage("%s","noWin_Item");
 	#endif
 	PrintToChatAll("%t - %t","Win_Item",ITEM_DO_NOT_CHANGE); //map_election "Победил пункт"
-	PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
+	PrintToChatAll("%t","Current Map Stays");	 // rtv "Голосование состоялось! Текущая карта продолжается! "
 	}
 }
 //*****************************************************************************
