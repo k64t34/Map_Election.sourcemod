@@ -22,4 +22,13 @@
 		"#format"	"{1:s}"
 		"en"	"Player {1} wants to rock the vote."
 	}	
+
+"Vote_Reault"
+	{		
+		"en"	"Vote Reault"
+	}		
+"Win_Item"
+	{		
+		"en"	"Win Item"
+	}		
 }

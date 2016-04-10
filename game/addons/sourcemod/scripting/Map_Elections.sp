@@ -1,6 +1,7 @@
 //-> подавить вывод say map 
 //->PrintToChat(client,"Map %s is not nominated",part1); сделать развернутое объяснение отказа
 //->Добавить счетчик доступных карт к номинации для каждого игрока
+//->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 #define DEBUG  1
 #define INFO 1
 #define SMLOG 1
@@ -536,10 +537,9 @@ g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
 int ItemWiner=0;
 int y=-1;
-PrintToChatAll("======================\n %T n----------------------","VoteResult");
+PrintToChatAll("===========================\n%t\n---------------------------","Vote_Reault");
 for (int i=0;i!=MENU_ITEMS_COUNT;i++)
-	{
-	//RemoveMenuItem(menu,i);
+	{	
 	#if defined SMLOG
 	LogMessage("ItemVote[%d]=%d",i,ItemVote[i]);
 	#endif		
@@ -550,21 +550,24 @@ for (int i=0;i!=MENU_ITEMS_COUNT;i++)
 		ItemWiner=i;	
 		}
 	}
-	PrintToChatAll("----------------------");	
+PrintToChatAll("---------------------------");	
 if (ItemWiner>0)
-	{
+	{	
 	#if defined SMLOG
 	LogMessage("ItemWiner=%d %s",ItemWiner,MenuItems[ItemWiner]);
 	#endif
-	PrintToChatAll("%t %d - %s","Win_Item\n======================",ItemWiner,MenuItems[ItemWiner]);		
-	ForceChangeLevel(MenuItems[ItemWiner], "map vote");
-	//ServerCommand("sm_map %s",MenuItems[ItemWiner]);
+	PrintToChatAll("%t - %s","Win_Item",MenuItems[ItemWiner]); //map_election "Победил пункт"
+	PrintToChatAll("%t","Changing Maps",MenuItems[ItemWiner]); //rtv "Голосование состоялось! Смена карты на {1}!"
+	ForceChangeLevel(MenuItems[ItemWiner], "map vote");	
 	}
-	else
+else
+	{
 	#if defined SMLOG
-	LogMessage("%t","noWin_Item");
+	LogMessage("%s","noWin_Item");
 	#endif
-	PrintToChatAll("%t","noWin_Item");	
+	PrintToChatAll("%t - %t","Win_Item",ITEM_DO_NOT_CHANGE); //map_election "Победил пункт"
+	PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
+	}
 }
 //*****************************************************************************
 public void OnPluginEnd(){
