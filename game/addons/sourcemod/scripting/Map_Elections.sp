@@ -169,7 +169,7 @@ for (int i=0;i!=sizeof(key_word);i++)
 	if (strcmp(part1, key_word[i], false) == 0)
 		{
 		cmd_Elect_Map(client,args);
-		return Plugin_Handled;
+		return Plugin_Stop;
 		}
 //mapvote
 /*
