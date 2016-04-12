@@ -1,24 +1,23 @@
-//-> подавить вывод say map 
 //->PrintToChat(client,"Map %s is not nominated",part1); сделать развернутое объяснение отказа
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-//#define DEBUG  1
+#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.2"
+#define PLUGIN_VERSION "0.2.1"
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
 #define SND_VOTE_START	"k64t\\votestart.mp3"
 #define SND_VOTE_FINISH	"k64t\\votefinish.mp3"
+#define MAX_KEY_WORDS 7
 
 #include <k64t>
-
 
 #define MENU_TITLE "VoteMenuTitle"
 #define ITEM_DO_NOT_CHANGE "Dont Change"
@@ -36,6 +35,7 @@ int cvar_sv_alltalk;
 Handle cvar_sm_vote_delay= INVALID_HANDLE; //Delay between votes
 Handle cvar_sm_mapvote_voteduration= INVALID_HANDLE; //Duration voting in seconds
 Handle cvar_sm_rtv_minplayers= INVALID_HANDLE;	//Number of players required before vote will be enabled.
+Handle cvar_key_words= INVALID_HANDLE;
 // Global Var
 bool g_elect=false; //been requested a vote
 bool g_voting=false; //there is a voting;
@@ -48,8 +48,8 @@ char part1[32]; //tmp var
 char part2[32]; //tmp var
 char argstext[128]; //tmp var
 
-char key_word[][MENU_ITEM_LEN]={"карта","карту","map","mapvote"}; //key_word :map карту карта
-//char[] key_word = new int[MaxClients]
+int key_word_cnt=MAX_KEY_WORDS;
+char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
 
 //Handle VoteTimer=INVALID_HANDLE;
 char MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN];//VotingItems
@@ -104,6 +104,12 @@ cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");
 	CreateConVar("sm_rtv_minplayers","1","Number of players required before RTV will be enabled.",true,true,60);
     cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");    
     }	
+cvar_key_words = FindConVar("sm_votemap_keywords");
+    if ( cvar_key_words == INVALID_HANDLE )
+    {
+	CreateConVar("sm_votemap_keywords","votemap;карту","Key words for demand map vote. Delimiter is ;");
+    cvar_key_words = FindConVar("sm_votemap_keywords");    
+    }
 	
 
 LoadTranslations("common.phrases");
@@ -135,6 +141,21 @@ KvSetString(KVdb,"database","k64t");
 char error[255]; 
 k64tDB=SQL_ConnectCustom(KVdb,error,sizeof(error),true); */
 }
+/**
+ * @return				Array index, or -1 if the value couldn't be found.
+ */
+//***********************************************
+stock int SplitStringToArray(const char Source[],char[] Word, const char split,int max_cnt, int max_len){
+//***********************************************
+int i=0;
+int w=0; //Word counter
+int StartChar;
+Word[0]=0;
+
+
+
+}
+
 //***********************************************
 public void OnMapStart(){
 //***********************************************
@@ -146,9 +167,20 @@ g_voting=false;
 CandidateCount=0;
 AutoExecConfig(true, "Map_Elections");
 g_vote_time= GetConVarFloat(cvar_sm_mapvote_voteduration);
+
+char tmpBuf[256];
+GetConVarString(cvar_key_words, tmpBuf, sizeof(tmpBuf));
+//SplitString(tmpBuf, ";", key_word, 16);
+if(SplitString(tmpBuf, ";", key_word, 16) != -1)
+	{
+	DebugPrint(tmpBuf);
+	}
+    
+
 #if defined DEBUG
 g_min_players_demand=1;
 g_vote_delay=GetTime()+1;
+for (int i=0;i!=sizeof(key_word);i++) DebugPrint("%d %s",i,key_word[i]);
 #else
 g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
 g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
@@ -161,44 +193,16 @@ public Action Command_Say(int client, int args){
 #if defined DEBUG
 DebugPrint("Command_Say");
 #endif
-//-> сделать парсинг для добаления нескольких карт. Пример взять из sm_votempa
+if (client==0) Plugin_Continue;
 GetCmdArgString(argstext, sizeof(argstext));
 StripQuotes(argstext);
 BreakString(argstext[0], part1, sizeof(part1));
-for (int i=0;i!=sizeof(key_word);i++)
+for (int i=0;i!=key_word_cnt;i++)
 	if (strcmp(part1, key_word[i], false) == 0)
 		{
 		cmd_Elect_Map(client,args);
 		return Plugin_Stop;
 		}
-//mapvote
-/*
-if (strcmp(part1, "карту", false) == 0)
-	{
-	cmd_Elect_Map(client,args);
-	return Plugin_Handled;
-	}
-else if (strcmp(part1, "map", false) == 0)
-	{
-	cmd_Elect_Map(client,args);
-	return Plugin_Handled;
-	}	
-else if (strcmp(part1, "mapvote", false) == 0)
-	{
-	cmd_Elect_Map(client,args);
-	return Plugin_Handled;
-	}	
-else if (strcmp(part1, "rfhne", false) == 0)
-	{
-	cmd_Elect_Map(client,args);
-	return Plugin_Handled;
-	}
-else if (strcmp(part1, "карта", false) == 0)
-	{
-	cmd_Elect_Map(client,args);
-	return Plugin_Handled;
-	}
-*/	
 return Plugin_Continue;
 }
 //***********************************************
@@ -207,7 +211,6 @@ public void EventRoundEnd(Handle event, const char[] name,bool dontBroadcast){
 #if defined DEBUG
 DebugPrint("round_end");
 #endif
-
 if (!g_elect) return;
 g_elect=false;
 PrecacheSound(snd_votestart,true);
@@ -608,3 +611,67 @@ public void OnPluginEnd(){
 //Какая функция лучше = ?
 //CutWord(argstext," ",1,part1,sizeof(part1));
 ===
+
+
+
+
+//*****************************************************************************
+stock void CutWord(const char[] source, const char[] split,int Number,char[] Word,int WordLen){	
+//******************************************************************************
+if (WordLen==0) return -1;
+int StringLen=strlen(source);
+int i=0;
+int w=0; //Word counter
+int StartChar;
+Word[0]=0;
+// Skip leading chars
+while (i<StringLen)
+	{
+	while (FindCharInString(split, source[i], false)!=-1) 
+		{
+		i++;
+		if (i==StringLen)return 0;		
+		}	
+	w++;
+	if (w==Number) {StartChar=i;}
+	// Skip word
+	while (FindCharInString(split, source[i], false)==-1)
+		{		
+		i++;
+		if (i==StringLen){break;}
+		}
+	if (w==Number) 
+		{
+		int j=0;
+		while (StartChar<i)
+			{
+			Word[j]=source[StartChar];
+			j++;
+			StartChar++;
+			}
+		Word[j]=0;	
+		j--;
+		return (j);
+		}
+	}	
+
+return 0;
+}
+
+
+
+stock Array_FindString(const String:array[][], size, const String:str[], bool:caseSensitive=true, start=0)
+{
+	if (start < 0) {
+		start = 0;
+	}
+
+	for (new i=start; i < size; i++) {
+
+		if (StrEqual(array[i], str, caseSensitive)) {
+			return i;
+		}
+	}
+	
+	return -1;
+}
