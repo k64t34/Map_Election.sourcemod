@@ -1,5 +1,19 @@
-game\addons\sourcemod\scripting\Map_Elections.sp(159) : error 048: array (s do not match
-game\addons\sourcemod\scripting\Map_Elections.sp(181) : warning 215: expression has no effect
-game\addons\sourcemod\scripting\Map_Elections.sp(218) : warning 240: 'MenuAction:' is an old-style tag operation; use view_as<MenuAction>(expression) instead
-game\addons\sourcemod\scripting\Map_Elections.sp(282) : warning 204: symbol is assigned a value that is never used: "VoteMax"
+game\addons\sourcemod\scripting\Map_Elections.sp(78) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(83) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(84) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(89) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(90) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(93) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(95) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(96) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(99) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(101) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(102) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(105) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(107) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(108) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(111) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(115) : warning 217: loose indentation
+game\addons\sourcemod\scripting\Map_Elections.sp(217) : warning 240: 'MenuAction:' is an old-style tag operation; use view_as<MenuAction>(expression) instead
+game\addons\sourcemod\scripting\Map_Elections.sp(281) : warning 204: symbol is assigned a value that is never used: "VoteMax"
 game\addons\sourcemod\scripting\Map_Elections.sp(48) : warning 203: symbol is never used: "part2"

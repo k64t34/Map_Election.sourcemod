@@ -141,21 +141,6 @@ KvSetString(KVdb,"database","k64t");
 char error[255]; 
 k64tDB=SQL_ConnectCustom(KVdb,error,sizeof(error),true); */
 }
-/**
- * @return				Array index, or -1 if the value couldn't be found.
- */
-//***********************************************
-stock int SplitStringToArray(const char Source[],char[] Word, const char split,int max_cnt, int max_len){
-//***********************************************
-int i=0;
-int w=0; //Word counter
-int StartChar;
-Word[0]=0;
-
-
-
-}
-
 //***********************************************
 public void OnMapStart(){
 //***********************************************
@@ -170,13 +155,12 @@ g_vote_time= GetConVarFloat(cvar_sm_mapvote_voteduration);
 
 char tmpBuf[256];
 GetConVarString(cvar_key_words, tmpBuf, sizeof(tmpBuf));
-//SplitString(tmpBuf, ";", key_word, 16);
-if(SplitString(tmpBuf, ";", key_word, 16) != -1)
+key_word_cnt=ExplodeString(tmpBuf,";",key_word,MAX_KEY_WORDS,MENU_ITEM_LEN);
+if(key_word_cnt==0)
 	{
-	DebugPrint(tmpBuf);
+	key_word_cnt=1;
+	strcopy(key_word[0],MENU_ITEM_LEN,"votemap");	
 	}
-    
-
 #if defined DEBUG
 g_min_players_demand=1;
 g_vote_delay=GetTime()+1;
@@ -193,7 +177,7 @@ public Action Command_Say(int client, int args){
 #if defined DEBUG
 DebugPrint("Command_Say");
 #endif
-if (client==0) Plugin_Continue;
+if (client==0) return  Plugin_Continue;
 GetCmdArgString(argstext, sizeof(argstext));
 StripQuotes(argstext);
 BreakString(argstext[0], part1, sizeof(part1));
@@ -598,80 +582,3 @@ public void OnPluginEnd(){
 //mp_round_restart_delay 0
 //mp_freezetime  0
 ===
-/* Пример SplitString
- if(SplitString(strMap, "_", strPart, sizeof(strPart)) != -1)
-     {
-          if(StrEqual(strPart, "bhop"))
-          {
-               g_nMapType = MAP_BHOP;
-          }
-     }
-*/	 
-
-//Какая функция лучше = ?
-//CutWord(argstext," ",1,part1,sizeof(part1));
-===
-
-
-
-
-//*****************************************************************************
-stock void CutWord(const char[] source, const char[] split,int Number,char[] Word,int WordLen){	
-//******************************************************************************
-if (WordLen==0) return -1;
-int StringLen=strlen(source);
-int i=0;
-int w=0; //Word counter
-int StartChar;
-Word[0]=0;
-// Skip leading chars
-while (i<StringLen)
-	{
-	while (FindCharInString(split, source[i], false)!=-1) 
-		{
-		i++;
-		if (i==StringLen)return 0;		
-		}	
-	w++;
-	if (w==Number) {StartChar=i;}
-	// Skip word
-	while (FindCharInString(split, source[i], false)==-1)
-		{		
-		i++;
-		if (i==StringLen){break;}
-		}
-	if (w==Number) 
-		{
-		int j=0;
-		while (StartChar<i)
-			{
-			Word[j]=source[StartChar];
-			j++;
-			StartChar++;
-			}
-		Word[j]=0;	
-		j--;
-		return (j);
-		}
-	}	
-
-return 0;
-}
-
-
-
-stock Array_FindString(const String:array[][], size, const String:str[], bool:caseSensitive=true, start=0)
-{
-	if (start < 0) {
-		start = 0;
-	}
-
-	for (new i=start; i < size; i++) {
-
-		if (StrEqual(array[i], str, caseSensitive)) {
-			return i;
-		}
-	}
-	
-	return -1;
-}
