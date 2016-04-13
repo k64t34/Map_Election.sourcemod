@@ -45,7 +45,7 @@ int g_vote_countdown; //countdown voting process
 int g_min_players_demand=2; //Minimal demands for voting start 
 Menu vMenu;//Handle menu= INVALID_HANDLE;//VotingMenu
 char part1[32]; //tmp var
-char part2[32]; //tmp var
+//char part2[32]; //tmp var
 char argstext[128]; //tmp var
 
 int key_word_cnt=MAX_KEY_WORDS;
@@ -274,8 +274,7 @@ if (g_MapList!=INVALID_HANDLE)
 
 for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
 	{	
-	AddRandomMenuMapItem();
-	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
+	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
 	}
 g_voting=true;	
 VoteMax=0;
@@ -290,10 +289,8 @@ for (int i=1;i!=MENU_ITEMS_COUNT;i++)
 	{
 	ItemVote[i]=0;	
 	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i]);
-	vMenu.AddItem("", Title);
-	//AddMenuItem(vMenu,"",Title);
+	vMenu.AddItem("", Title);	
 	}
-//SetMenuExitButton(vMenu, false);
 vMenu.ExitButton=false;
 CreateTimer(g_vote_time+1.0,EndVote);	
 ReDisplayMenu();
@@ -523,7 +520,6 @@ EmitSoundToAll(snd_votefinish);
 SetConVarInt(mp_freezetime, cvar_mp_freezetime);
 SetConVarInt(sv_alltalk, cvar_sv_alltalk);
 CandidateCount=0;
-
 if (!vMenu==INVALID_HANDLE) vMenu.RemoveAllItems();
 if (!vMenu==INVALID_HANDLE) vMenu.Cancel();
 if (!vMenu==INVALID_HANDLE) delete vMenu;
@@ -570,10 +566,10 @@ else
 	}
 }
 //*****************************************************************************
-public void OnPluginEnd(){
+//public void OnPluginEnd(){
 //*****************************************************************************
 //if (k64tDB!=INVALID_HANDLE) SQL_UnlockDatabase(k64tDB); 
-}
+//}
 //*****************************************************************************
 #endinput
 //#C:\pro\SourceMod\MySMcompile.exe "$(FULL_CURRENT_PATH)"
