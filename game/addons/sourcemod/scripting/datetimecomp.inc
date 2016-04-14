@@ -1,9 +1,9 @@
 #if defined DEBUG
-	#define PLUGIN_DATETIME "Чт, 14.апр.2016 11:42:59"
+	#define PLUGIN_DATETIME "Чт, 14.апр.2016 11:52:25"
 	#if defined PLUGIN_VERSION
 		#undef PLUGIN_VERSION
 	#endif
-	#define PLUGIN_VERSION "Чт, 14.апр.2016 11:42:59"
+	#define PLUGIN_VERSION "Чт, 14.апр.2016 11:52:25"
 #endif
 #if !defined PLUGIN_NAME
 	#define PLUGIN_NAME "Map_Elections"
