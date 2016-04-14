@@ -54,7 +54,9 @@ Now key_words are map, wantmap, карта, карту.
 -Add sound accompaniment.
 -Add cvar for customizing key_word
 -Convert more internal stuff into CVARS
--Add  sm_mapvote_dontchange
+-Add sm_mapvote_dontchange Specifies if a 'Don't Change' option should be added to early votes (like rockthevote)
+-Add sm_mapvote_include Specifies how many maps to include in the vote.
+-
 
 ##Other Information:
 This plugin is meant to be run with Sourcemod 1.7 or above.
