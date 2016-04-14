@@ -9,7 +9,7 @@
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.3.1"
+#define PLUGIN_VERSION "0.3.2"
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -47,17 +47,16 @@ Menu vMenu;//Handle menu= INVALID_HANDLE;//VotingMenu
 char part1[32]; //tmp var
 //char part2[32]; //tmp var
 char argstext[128]; //tmp var
-
 int key_word_cnt=MAX_KEY_WORDS;
 char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
-
+Handle g_MapList = null;
 //Handle VoteTimer=INVALID_HANDLE;
 char MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN];//VotingItems
 int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
 int ItemVote[MENU_ITEMS_COUNT]; // Counter. How many votes for the item
 char Title[MENU_ITEM_LEN]; // Title of voting menu
 int CandidateCount;             //Count of candidate item to votemenu
-int VoteMax;
+//int VoteMax;
 // DB
 //Handle k64tDB=INVALID_HANDLE;	              
 //***********************************************
@@ -108,7 +107,7 @@ cvar_key_words = FindConVar("sm_votemap_keywords");
     if ( cvar_key_words == INVALID_HANDLE )
     {
 	CreateConVar("sm_votemap_keywords","votemap;карту","Key words for demand map vote. Delimiter is ;");
-    cvar_key_words = FindConVar("sm_votemap_keywords");    
+    cvar_key_words = FindConVar("sm_votemap_keywords");
     }
 	
 
@@ -130,6 +129,9 @@ Format(buffer, PLATFORM_MAX_PATH, "sound\\%s",snd_votestart);
 AddFileToDownloadsTable(buffer);
 Format(buffer, PLATFORM_MAX_PATH, "sound\\%s",snd_votefinish);	
 AddFileToDownloadsTable(buffer);
+
+int arraySize = ByteCountToCells(33);
+g_MapList = CreateArray(arraySize);
 
 //DB
 /*Handle KVdb = INVALID_HANDLE;             
@@ -213,85 +215,8 @@ SetConVarInt(sv_alltalk, 1);
 //Panel panel = view_as<Panel>param2;
 //https://wiki.alliedmods.net/Menu_API_(SourceMod)#Basic_Panel
 //menu = CreateMenu(MenuHandler1, MenuAction:MENU_ACTIONS_ALL);
-
-vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);
-//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
-
-Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
-vMenu.SetTitle(Title);
-//Make random map list
-//\cstrike\cfg\mapcycle_default.txt" - пропустить //
-//\cstrike\cfg\mapcyclet.txt" 
-//\cstrike\cfg\bigmaps.txt 
-//Read from DB
-/*if (k64tDB!=INVALID_HANDLE){
-	Handle MapQuery=SQL_Query(k64tDB,"select name from map");
-	//if (MapQuery!=INVALID_HANDLE)
-	//	if (SQL_FetchRow(MapQuery)) 
-	//		if(!SQL_IsFieldNull(IPQuery,0))
-	//			SQL_FetchString(IPQuery,0,ip,sizeof(ip));
-}*/
-//Read MapList
-Handle g_MapList = INVALID_HANDLE;
-int g_MapListSerial = -1;
-//(ReadMapList(g_MapList,g_MapListSerial,"default",MAPLIST_FLAG_CLEARARRAY|MAPLIST_FLAG_NO_DEFAULT)==INVALID_HANDLE)
-if (ReadMapList(g_MapList,g_MapListSerial,"default",MAPLIST_FLAG_CLEARARRAY)==INVALID_HANDLE)
-{	
-	#if defined DEBUG
-	DebugPrint("ReadMapList failure");
-	#endif 
-	if (g_MapListSerial == -1)
-	{
-	#if defined DEBUG
-	DebugPrint("Cannot load map cycle");
-	#endif 
-	}
-}	
-if (g_MapList!=INVALID_HANDLE)
-	{
-	#if defined DEBUG
-	DebugPrint("Get map cycle");
-	#endif 
-	/*int mapCount = GetArraySize(g_MapList);
-	
-	char mapName[32];
-	for (int i = 0; i < mapCount; i++)
-		{
-		GetArrayString(g_MapList, i, mapName, sizeof(mapName));
-		LogMessage(mapName);
-		}*/
-
-	//-> Сформировать произвольный список карт в массиве PopularMenuItems
-		
-		if (g_MapList!=INVALID_HANDLE) CloseHandle(g_MapList);
-	}
-//Read MapList from mapcycle.txt
-//if FileExists("mapcycle.txt") 
-	
-//AddCandidateMaptoMenuItems("de_alivemetal");
-//AddMenuMapItem("de_snowball");
-//AddMenuMapItem("de_survivor_css");
-
-for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
-	{	
-	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
-	}
-g_voting=true;	
-VoteMax=0;
-for (int i=0;i!=MAX_PLAYERS;i++)	
-	PlayerVote[i]=-1;
-char ItemShift[MENU_ITEMS_COUNT];
-Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
-Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
-strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
-vMenu.AddItem("", Title);
-for (int i=1;i!=MENU_ITEMS_COUNT;i++)
-	{
-	ItemVote[i]=0;	
-	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i]);
-	vMenu.AddItem("", Title);	
-	}
-vMenu.ExitButton=false;
+BuildMapMenu();
+g_voting=true;
 CreateTimer(g_vote_time+1.0,EndVote);	
 ReDisplayMenu();
 CreateTimer(1.0,RefreshMenu,_, TIMER_REPEAT);		
@@ -402,28 +327,7 @@ else
 	
 return Plugin_Handled;
 }
-//***********************************************
-void AddRandomMenuMapItem(){
-//***********************************************
-int SizePopularMenuItems=sizeof(PopularMenuItems)-1;
-int IndexPopularMenuItems;
-do 	{
-	IndexPopularMenuItems=GetRandomInt(0,SizePopularMenuItems);
-	}
-while (!AddMenuMapItem(PopularMenuItems[IndexPopularMenuItems]));
-}
-//***********************************************
-void AddMenuMapItem(char[] Map){
-//***********************************************
-if (g_voting) return false;
-if (!IsMapValid(Map)) return false;
-if (CandidateCount+1==MENU_ITEMS_COUNT)return false;
-String_ToLower(Map, Map, MENU_ITEM_LEN);
-if (Array_FindString(MenuItems, CandidateCount+1, Map, false,1)!=-1) return false;
-CandidateCount++;
-strcopy(MenuItems[CandidateCount],MENU_ITEM_LEN,Map);
-return true;
-}
+
 //***********************************************
 public int  MenuHandler1(Menu menu, MenuAction action, int param1/*-client*/, int param2/*-menu item*/){
 //***********************************************
@@ -564,6 +468,124 @@ else
 	PrintToChatAll("%t - %t","Win_Item",ITEM_DO_NOT_CHANGE); //map_election "Победил пункт"
 	PrintToChatAll("%t","Current Map Stays");	 // rtv "Голосование состоялось! Текущая карта продолжается! "
 	}
+}
+//*****************************************************************************
+void BuildMapMenu(){
+//*****************************************************************************
+vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
+Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
+vMenu.SetTitle(Title);
+//Make random map list
+//\cstrike\cfg\mapcycle_default.txt" - пропустить //
+//\cstrike\cfg\mapcyclet.txt" 
+//\cstrike\cfg\bigmaps.txt 
+//Read from DB
+/*if (k64tDB!=INVALID_HANDLE){
+	Handle MapQuery=SQL_Query(k64tDB,"select name from map");
+	//if (MapQuery!=INVALID_HANDLE)
+	//	if (SQL_FetchRow(MapQuery)) 
+	//		if(!SQL_IsFieldNull(IPQuery,0))
+	//			SQL_FetchString(IPQuery,0,ip,sizeof(ip));
+}*/
+BuildMapListForVoteMenu();
+for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
+	{	
+	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
+	}
+for (int i=0;i!=MAX_PLAYERS;i++)	
+	PlayerVote[i]=-1;
+char ItemShift[MENU_ITEMS_COUNT];
+Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
+Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
+strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
+vMenu.AddItem("", Title);
+for (int i=1;i!=MENU_ITEMS_COUNT;i++)
+	{
+	ItemVote[i]=0;	
+	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i]);
+	vMenu.AddItem("", Title);	
+	}
+vMenu.ExitButton=false;
+}
+//***********************************************
+void BuildMapListForVoteMenu(){
+//***********************************************
+#if defined DEBUG
+DebugPrint("BuildMapListForVoteMenu");
+#endif 
+
+//Read MapList
+int g_MapListSerial = -1;
+int g_mapFileSerial = -1;
+//Handle g_MapList = INVALID_HANDLE;
+if (ReadMapList(g_MapList,g_MapListSerial,"default",MAPLIST_FLAG_CLEARARRAY)== null)
+{	
+	#if defined DEBUG
+	DebugPrint("ReadMapList failure");
+	#endif 
+	if (g_MapListSerial == -1)
+	{
+	SetFailState("Unable to create a valid map list.");
+	#if defined DEBUG
+	DebugPrint("Cannot load map cycle");
+	#endif 
+	}
+}
+/*if (g_MapList != null)*/else
+	{
+	int mapCount = GetArraySize(g_MapList);		
+	char mapName[32];
+	for (int i = 0; i < mapCount; i++)
+		{
+		GetArrayString(g_MapList, i, mapName, sizeof(mapName));		
+		#if defined DEBUG
+		DebugPrint(mapName);		
+		#endif
+		}
+	//-> Сформировать произвольный список карт в массиве PopularMenuItems		
+	//if (g_MapList!=INVALID_HANDLE) CloseHandle(g_MapList);
+	}
+#if defined DEBUG
+DebugPrint("BuildMapListForVoteMenu.finish");
+#endif 	
+//Read MapList from mapcycle.txt
+//if FileExists("mapcycle.txt") 
+	
+//AddCandidateMaptoMenuItems("de_alivemetal");
+//AddMenuMapItem("de_snowball");
+//AddMenuMapItem("de_survivor_css");
+
+}
+//***********************************************
+void AddRandomMenuMapItem(){
+//***********************************************
+/*int SizePopularMenuItems=sizeof(PopularMenuItems)-1;
+int IndexPopularMenuItems;
+do 	{
+	IndexPopularMenuItems=GetRandomInt(0,SizePopularMenuItems);
+	}
+while (!AddMenuMapItem(PopularMenuItems[IndexPopularMenuItems]));*/
+int IndexMenuItems;
+int mapCount = GetArraySize(g_MapList)-1;
+char mapName[32];
+do 	{
+	IndexMenuItems=GetRandomInt(0,mapCount);
+	GetArrayString(g_MapList, IndexMenuItems, mapName, sizeof(mapName));	
+	}
+while (!AddMenuMapItem(mapName));
+}
+//***********************************************
+void AddMenuMapItem(char[] Map){
+//***********************************************
+if (g_voting) return false;
+if (!IsMapValid(Map)) return false;
+//GetCurrentMap(currentMap, sizeof(currentMap));
+if (CandidateCount+1==MENU_ITEMS_COUNT)return false;
+String_ToLower(Map, Map, MENU_ITEM_LEN);
+if (Array_FindString(MenuItems, CandidateCount+1, Map, false,1)!=-1) return false;
+CandidateCount++;
+strcopy(MenuItems[CandidateCount],MENU_ITEM_LEN,Map);
+return true;
 }
 //*****************************************************************************
 //public void OnPluginEnd(){
