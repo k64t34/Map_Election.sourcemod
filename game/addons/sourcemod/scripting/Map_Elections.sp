@@ -9,7 +9,7 @@
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.3.2"
+#define PLUGIN_VERSION "0.3.3"
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -26,7 +26,7 @@
 char cPLUGIN_NAME[]=PLUGIN_NAME;
 char snd_votestart[]	={SND_VOTE_START}; //Sound vote start
 char snd_votefinish[]	={SND_VOTE_FINISH};//Sound vote finish
-char PopularMenuItems[][MENU_ITEM_LEN]={"de_dust","de_dust2","de_inferno","de_piranesi","cs_office","de_aztec","de_cbble","de_chateau","de_nuke","de_tides","de_train"};
+//char PopularMenuItems[][MENU_ITEM_LEN]={"de_dust","de_dust2","de_inferno","de_piranesi","cs_office","de_aztec","de_cbble","de_chateau","de_nuke","de_tides","de_train"};
 // ConVar
 Handle mp_freezetime= INVALID_HANDLE; 
 int cvar_mp_freezetime;
