@@ -579,8 +579,10 @@ void AddMenuMapItem(char[] Map){
 //***********************************************
 if (g_voting) return false;
 if (!IsMapValid(Map)) return false;
-//GetCurrentMap(currentMap, sizeof(currentMap));
 if (CandidateCount+1==MENU_ITEMS_COUNT)return false;
+char currentMap[PLATFORM_MAX_PATH];
+GetCurrentMap(currentMap, sizeof(currentMap));
+if (strcmp(Map, currentMap, false)==0)return false;
 String_ToLower(Map, Map, MENU_ITEM_LEN);
 if (Array_FindString(MenuItems, CandidateCount+1, Map, false,1)!=-1) return false;
 CandidateCount++;
