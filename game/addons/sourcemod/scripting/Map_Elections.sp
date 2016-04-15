@@ -2,7 +2,7 @@
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-//#define DEBUG  1
+#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
@@ -44,6 +44,7 @@ float g_vote_time=15.0;//time to vote
 int g_vote_countdown; //countdown voting process
 int g_min_players_demand=2; //Minimal demands for voting start 
 Menu vMenu;//Handle menu= INVALID_HANDLE;//VotingMenu
+Menu g_MapMenu = null;//Menu select map
 char part1[32]; //tmp var
 //char part2[32]; //tmp var
 char argstext[128]; //tmp var
@@ -74,40 +75,40 @@ PrintToServer("[%s] OnPluginStart",PLUGIN_NAME);
 #endif 
 
 mp_freezetime = FindConVar("mp_freezetime");
-	if ( mp_freezetime == INVALID_HANDLE )
+if(mp_freezetime==INVALID_HANDLE)
     {
         LogError("FATAL: Cannot find mp_freezetime cvar.");
         SetFailState("[%s] %s",cPLUGIN_NAME,"Cannot find mp_freezetime cvar.");
     }
 sv_alltalk = FindConVar("sv_alltalk");
-    if ( sv_alltalk == INVALID_HANDLE )
+if ( sv_alltalk == INVALID_HANDLE )
     {
         LogError("FATAL: Cannot find sv_alltalk cvar.");
         SetFailState("[%s] %s",cPLUGIN_NAME,"Cannot find sv_alltalk cvar.");
     }
 cvar_sm_vote_delay = FindConVar("sm_vote_delay");
-    if ( cvar_sm_vote_delay == INVALID_HANDLE )
+if ( cvar_sm_vote_delay == INVALID_HANDLE )
     {
 	CreateConVar("sm_vote_delay","600","Delay between votes",true,true,60);
-    cvar_sm_vote_delay = FindConVar("sm_vote_delay");    
+	cvar_sm_vote_delay = FindConVar("sm_vote_delay");    
     }	
 cvar_sm_mapvote_voteduration = FindConVar("sm_mapvote_voteduration");
-    if ( cvar_sm_mapvote_voteduration == INVALID_HANDLE )
+if ( cvar_sm_mapvote_voteduration == INVALID_HANDLE )
     {
 	CreateConVar("sm_mapvote_voteduration","20","Duration voting in seconds",true,true,60);
-    cvar_sm_mapvote_voteduration = FindConVar("sm_mapvote_voteduration");    
+	cvar_sm_mapvote_voteduration = FindConVar("sm_mapvote_voteduration");    
     }	
 cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");
-    if ( cvar_sm_rtv_minplayers == INVALID_HANDLE )
+if ( cvar_sm_rtv_minplayers == INVALID_HANDLE )
     {
 	CreateConVar("sm_rtv_minplayers","1","Number of players required before RTV will be enabled.",true,true,60);
-    cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");    
+	cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");    
     }	
 cvar_key_words = FindConVar("sm_votemap_keywords");
-    if ( cvar_key_words == INVALID_HANDLE )
+if ( cvar_key_words == INVALID_HANDLE )
     {
 	CreateConVar("sm_votemap_keywords","votemap;карту","Key words for demand map vote. Delimiter is ;");
-    cvar_key_words = FindConVar("sm_votemap_keywords");
+	cvar_key_words = FindConVar("sm_votemap_keywords");
     }
 	
 
@@ -215,7 +216,7 @@ SetConVarInt(sv_alltalk, 1);
 //Panel panel = view_as<Panel>param2;
 //https://wiki.alliedmods.net/Menu_API_(SourceMod)#Basic_Panel
 //menu = CreateMenu(MenuHandler1, MenuAction:MENU_ACTIONS_ALL);
-BuildMapMenu();
+BuildMapVoteMenu();
 g_voting=true;
 CreateTimer(g_vote_time+1.0,EndVote);	
 ReDisplayMenu();
@@ -274,9 +275,14 @@ if (tdif>0)
 	return Plugin_Handled;
 	}
 GetClientName(client, Title, MAX_CLIENT_NAME);
-GetCmdArgString(argstext, sizeof(argstext));
+if (GetCmdArgString(argstext, sizeof(argstext))==0)
+	{
+	BuildMapMenu();
+	}
+else{	
 StripQuotes(argstext);
 //-> Если нет аргументов, то выдать пользователю список карт сервера
+//BuildMapMenu();
 PrintToChatAll("%t","Map Election Requested",Title);//"Игрок {1} хочет сменить карту.
 int len, pos;
 while (pos != -1 && CandidateCount!=MENU_ITEMS_COUNT )
@@ -290,7 +296,8 @@ while (pos != -1 && CandidateCount!=MENU_ITEMS_COUNT )
 				PrintToChat(client,"Map %s is not nominated",part1);
 			}
 		if (pos != -1)len += pos;
-	}	
+	}
+}	
 #if defined DEBUG	
 DebugPrint("client=%d g_min_players_demand=%d",client,g_min_players_demand);
 #endif
@@ -470,9 +477,11 @@ else
 	}
 }
 //*****************************************************************************
-void BuildMapMenu(){
+void BuildMapVoteMenu(){
 //*****************************************************************************
-vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
+//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
+vMenu = view_as<MenuAction>(MenuHandler1);//,MENU_ACTIONS_ALL);
+
 Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
 vMenu.SetTitle(Title);
 //Make random map list
@@ -588,6 +597,19 @@ if (Array_FindString(MenuItems, CandidateCount+1, Map, false,1)!=-1) return fals
 CandidateCount++;
 strcopy(MenuItems[CandidateCount],MENU_ITEM_LEN,Map);
 return true;
+}
+//*****************************************************************************
+void BuildMapMenu(){
+//*****************************************************************************	
+delete g_MapMenu;
+g_MapMenu = new Menu(Handler_MapSelectMenu, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem);
+char map[PLATFORM_MAX_PATH];
+char currentMap[PLATFORM_MAX_PATH];
+GetCurrentMap(currentMap, sizeof(currentMap));
+for (int i = 0; i < g_MapList.Length; i++)
+	{
+	g_MapList.GetString(i, map, sizeof(map));	
+	g_MapMenu.AddItem(map);
 }
 //*****************************************************************************
 //public void OnPluginEnd(){
