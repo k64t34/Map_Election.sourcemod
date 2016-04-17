@@ -1,15 +1,16 @@
+//->опять  артефакт меню голосования
 //->PrintToChat(client,"Map %s is not nominated",part1); сделать развернутое объяснение отказа
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-#define DEBUG  1
+//#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.3.3"
+#define PLUGIN_VERSION "0.4"
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -33,24 +34,24 @@ int cvar_mp_freezetime;
 Handle sv_alltalk= INVALID_HANDLE;
 int cvar_sv_alltalk;
 Handle cvar_sm_vote_delay= INVALID_HANDLE; //Delay between votes
+int g_vote_delay; //Delay between votes
 Handle cvar_sm_mapvote_voteduration= INVALID_HANDLE; //Duration voting in seconds
+float g_vote_time=15.0;//time to vote
 Handle cvar_sm_rtv_minplayers= INVALID_HANDLE;	//Number of players required before vote will be enabled.
+int g_min_players_demand=2; //Minimal demands for voting start 
 Handle cvar_key_words= INVALID_HANDLE;
+int key_word_cnt=MAX_KEY_WORDS;
+char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
 // Global Var
 bool g_elect=false; //been requested a vote
 bool g_voting=false; //there is a voting;
-int g_vote_delay; //Delay between votes
-float g_vote_time=15.0;//time to vote
 int g_vote_countdown; //countdown voting process
-int g_min_players_demand=2; //Minimal demands for voting start 
 Menu vMenu;//Handle menu= INVALID_HANDLE;//VotingMenu
 Menu g_MapMenu = null;//Menu select map
 char part1[32]; //tmp var
 //char part2[32]; //tmp var
-char argstext[128]; //tmp var
-int key_word_cnt=MAX_KEY_WORDS;
-char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
 Handle g_MapList = null;
+int g_mapFileSerial = -1;
 //Handle VoteTimer=INVALID_HANDLE;
 char MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN];//VotingItems
 int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
@@ -110,8 +111,6 @@ if ( cvar_key_words == INVALID_HANDLE )
 	CreateConVar("sm_votemap_keywords","votemap;карту","Key words for demand map vote. Delimiter is ;");
 	cvar_key_words = FindConVar("sm_votemap_keywords");
     }
-	
-
 LoadTranslations("common.phrases");
 LoadTranslations("nominations.phrases");
 LoadTranslations("basevotes.phrases");
@@ -120,7 +119,7 @@ LoadTranslations("rockthevote.phrases");
 LoadTranslations("Map_Election.phrases.txt");
 HookEvent("round_end",		EventRoundEnd);
 //RegConsoleCmd("cem", cmd_Elect_Map,"Call elections map");
-RegConsoleCmd("say", 		Command_Say);
+RegConsoleCmd("say", 		Command_Say);//https://wiki.alliedmods.net/Talk:Introduction_to_sourcemod_plugins
 RegConsoleCmd("say_team",	Command_Say);
 //Sound
 PrecacheSound(snd_votestart,true);
@@ -173,21 +172,31 @@ g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
 g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
 for (int i=0;i!=MAX_PLAYERS;i++)PlayerVote[i]=-1;
+//Read MapList
+if (ReadMapList(g_MapList,g_mapFileSerial,"default",MAPLIST_FLAG_CLEARARRAY)== null)	
+	if (g_mapFileSerial == -1)
+		SetFailState("Unable to create a valid map list.");	
 }
 //***********************************************
 public Action Command_Say(int client, int args){
 //***********************************************
+//=> use GetCmdArg
 #if defined DEBUG
-DebugPrint("Command_Say");
+DebugPrint("Command_Say.Client %d, args %d",client,args);
 #endif
-if (client==0) return  Plugin_Continue;
-GetCmdArgString(argstext, sizeof(argstext));
+//Do not use GetCmdArg. It not response cyrilic 
+char argstext[128];
+int pos;
+GetCmdArgString(argstext, sizeof(argstext)); // argstext=карту de_dust2
 StripQuotes(argstext);
-BreakString(argstext[0], part1, sizeof(part1));
+pos = BreakString(argstext, part1, sizeof(part1));
+int len = pos;
 for (int i=0;i!=key_word_cnt;i++)
 	if (strcmp(part1, key_word[i], false) == 0)
-		{
-		cmd_Elect_Map(client,args);
+		{		
+		if (pos==-1) part1[0]=0;
+		else BreakString(argstext[len], part1, sizeof(part1));
+		cmd_Elect_Map(client,part1);
 		return Plugin_Stop;
 		}
 return Plugin_Continue;
@@ -209,7 +218,6 @@ cvar_mp_freezetime=GetConVarInt(mp_freezetime);
 SetConVarInt(mp_freezetime, g_vote_countdown);
 cvar_sv_alltalk=GetConVarInt(sv_alltalk);
 SetConVarInt(sv_alltalk, 1);
-
 //https://forums.alliedmods.net/showthread.php?t=264033
 //origin vMenu = CreateMenu(MenuHandler1, MenuAction:MENU_ACTIONS_ALL);
 //https://wiki.alliedmods.net/Menu_API_(SourceMod)
@@ -220,7 +228,7 @@ BuildMapVoteMenu();
 g_voting=true;
 CreateTimer(g_vote_time+1.0,EndVote);	
 ReDisplayMenu();
-CreateTimer(1.0,RefreshMenu,_, TIMER_REPEAT);		
+CreateTimer(1.0,RefreshMenu,_, TIMER_REPEAT);
 }
 //*****************************************************************************
 public  Action RefreshMenu(Handle Timer,any Parameters){
@@ -257,10 +265,10 @@ for(int i = 1; i <= MaxClients; i++)
 	}
 }	
 //***********************************************
-public Action cmd_Elect_Map(int client, int args){
+int cmd_Elect_Map(int client, char[] map){
 //***********************************************
 #if defined DEBUG
-DebugPrint("cmd_Elect_Map");
+DebugPrint("cmd_Elect_Map client %d map %s",client,map);
 #endif
 if (g_voting) return Plugin_Handled;
 if (g_elect) return Plugin_Handled;
@@ -271,67 +279,46 @@ if (tdif>0)
 	if (tdif>60)
 		PrintToChat(client,"%t","Vote Delay Minutes",RoundToCeil(tdif/60.0));	//common "Вы не можете начать новое голосование раньше, чем через {1} минут"
 	else
-		PrintToChat(client,"%t","Vote Delay Seconds",tdif);	
+		PrintToChat(client,"%t","Vote Delay Seconds",tdif);	//common "Вы не можете начать новое голосование раньше, чем через {1} секунд"
 	return Plugin_Handled;
 	}
-GetClientName(client, Title, MAX_CLIENT_NAME);
-if (GetCmdArgString(argstext, sizeof(argstext))==0)
+
+if (strlen(map)==0)
 	{
 	BuildMapMenu();
-	}
-else{	
-StripQuotes(argstext);
-//-> Если нет аргументов, то выдать пользователю список карт сервера
-//BuildMapMenu();
-PrintToChatAll("%t","Map Election Requested",Title);//"Игрок {1} хочет сменить карту.
-int len, pos;
-while (pos != -1 && CandidateCount!=MENU_ITEMS_COUNT )
-	{	
-		pos = BreakString(argstext[len], part1, sizeof(part1));
-		if (len!=0)
-			{
-			if (AddMenuMapItem(part1))				
-				PrintToChatAll("%t","Map Nominated",Title,part1);//"Игрок {1} предложил {2} для голосование по смене карты."
-			else	
-				PrintToChat(client,"Map %s is not nominated",part1);
-			}
-		if (pos != -1)len += pos;
-	}
-}	
-#if defined DEBUG	
-DebugPrint("client=%d g_min_players_demand=%d",client,g_min_players_demand);
-#endif
-if (client!=0)
-	{
-	#if defined DEBUG	
-	DebugPrint("PlayerVote[%d]=%d",client-1,PlayerVote[client-1]);	
-	#endif
-	if (PlayerVote[client-1]==-1)
-		{
-		PlayerVote[client-1]++;
-		g_min_players_demand--;
-		#if defined DEBUG	
-		DebugPrint("PlayerVote[%d]=%d",client-1,PlayerVote[client-1]);	
-		#endif		
-		}
-	else
-		PrintToChat(client,"%s, %t",Title,"Already Nominated");	//rtv "Вы уже предложили карту."
-	}	
-#if defined DEBUG	
-DebugPrint("client=%d g_min_players_demand=%d",client,g_min_players_demand);
-#endif	
-if (g_min_players_demand<=0)		
-	{
-	g_elect=true;
-	PrintToChatAll("%t","Start_Vote_After_Round_End");	//map_election "Голосование начнется сразу после завершения раунда"
-	PrintToChatAll("%t:","Nominated");	//nomination "Предложены для голосования"
-	for (int i=0;i!=MENU_ITEMS_COUNT;i++)PrintToChatAll("%s",MenuItems[i]);
+	g_MapMenu.SetTitle("%T", "Nominate Title", client);
+	g_MapMenu.Display(client, MENU_TIME_FOREVER);	
 	}
 else
 	{
-	PrintToChatAll("%t","Number_of_demands",g_min_players_demand); // map_election "Количество заявлений, необходимое для начала голосования - {1}\nКто-нибудь, наберите в чате 'карта'"
+	GetClientName(client, Title, MAX_CLIENT_NAME);		
+	PrintToChatAll("%t","Map Election Requested",Title);//"Игрок {1} хочет сменить карту.		
+	if (AddMenuMapItem(map))				
+		PrintToChatAll("%t","Map Nominated",Title,map);//"Игрок {1} предложил {2} для голосование по смене карты."
+	else	
+		PrintToChat(client,"Map %s is not nominated",map);			
+	if (client!=0)
+		{
+		if (PlayerVote[client-1]==-1)
+			{
+			PlayerVote[client-1]++;
+			g_min_players_demand--;			
+			}
+		else
+			PrintToChat(client,"%s, %t",Title,"Already Nominated");	//rtv "Вы уже предложили карту."
+		}	
+	if (g_min_players_demand<=0)		
+		{
+		g_elect=true;
+		PrintToChatAll("%t","Start_Vote_After_Round_End");	//map_election "Голосование начнется сразу после завершения раунда"
+		PrintToChatAll("%t:","Nominated");	//nomination "Предложены для голосования"
+		for (int i=0;i!=MENU_ITEMS_COUNT;i++)PrintToChatAll("%s",MenuItems[i]);
+		}
+	else
+		{
+		PrintToChatAll("%t","Number_of_demands",g_min_players_demand); // map_election "Количество заявлений, необходимое для начала голосования - {1}\nКто-нибудь, наберите в чате 'карта'"
+		}
 	}
-	
 return Plugin_Handled;
 }
 
@@ -479,8 +466,8 @@ else
 //*****************************************************************************
 void BuildMapVoteMenu(){
 //*****************************************************************************
-//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
-vMenu = view_as<MenuAction>(MenuHandler1);//,MENU_ACTIONS_ALL);
+vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
+//vMenu = view_as<MenuAction>(MenuHandler1);//,MENU_ACTIONS_ALL);
 
 Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
 vMenu.SetTitle(Title);
@@ -496,7 +483,7 @@ vMenu.SetTitle(Title);
 	//		if(!SQL_IsFieldNull(IPQuery,0))
 	//			SQL_FetchString(IPQuery,0,ip,sizeof(ip));
 }*/
-BuildMapListForVoteMenu();
+/*BuildMapListForVoteMenu();*/
 for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
 	{	
 	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
@@ -516,55 +503,26 @@ for (int i=1;i!=MENU_ITEMS_COUNT;i++)
 	}
 vMenu.ExitButton=false;
 }
-//***********************************************
-void BuildMapListForVoteMenu(){
-//***********************************************
-#if defined DEBUG
-DebugPrint("BuildMapListForVoteMenu");
-#endif 
 
-//Read MapList
-int g_MapListSerial = -1;
-int g_mapFileSerial = -1;
-//Handle g_MapList = INVALID_HANDLE;
-if (ReadMapList(g_MapList,g_MapListSerial,"default",MAPLIST_FLAG_CLEARARRAY)== null)
-{	
-	#if defined DEBUG
-	DebugPrint("ReadMapList failure");
-	#endif 
-	if (g_MapListSerial == -1)
-	{
-	SetFailState("Unable to create a valid map list.");
-	#if defined DEBUG
-	DebugPrint("Cannot load map cycle");
-	#endif 
-	}
-}
-/*if (g_MapList != null)*/else
-	{
-	int mapCount = GetArraySize(g_MapList);		
-	char mapName[32];
-	for (int i = 0; i < mapCount; i++)
-		{
-		GetArrayString(g_MapList, i, mapName, sizeof(mapName));		
-		#if defined DEBUG
-		DebugPrint(mapName);		
-		#endif
-		}
-	//-> Сформировать произвольный список карт в массиве PopularMenuItems		
-	//if (g_MapList!=INVALID_HANDLE) CloseHandle(g_MapList);
-	}
-#if defined DEBUG
-DebugPrint("BuildMapListForVoteMenu.finish");
-#endif 	
-//Read MapList from mapcycle.txt
-//if FileExists("mapcycle.txt") 
-	
-//AddCandidateMaptoMenuItems("de_alivemetal");
-//AddMenuMapItem("de_snowball");
-//AddMenuMapItem("de_survivor_css");
-
-}
+//***********************************************
+// void BuildMapListForVoteMenu(){
+//***********************************************
+// #if defined DEBUG
+// DebugPrint("BuildMapListForVoteMenu");
+// #endif 
+// if (g_MapListSerial != -1)
+	// {
+	// int mapCount = GetArraySize(g_MapList);		
+	// char mapName[32];
+	// for (int i = 0; i < mapCount; i++)
+		// {
+		// GetArrayString(g_MapList, i, mapName, sizeof(mapName));		
+		// #if defined DEBUG
+		// DebugPrint(mapName);		
+		// #endif
+		// }
+	// }
+// }
 //***********************************************
 void AddRandomMenuMapItem(){
 //***********************************************
@@ -598,18 +556,41 @@ CandidateCount++;
 strcopy(MenuItems[CandidateCount],MENU_ITEM_LEN,Map);
 return true;
 }
+
+//*****************************************************************************
+public int Handler_MapSelectMenu(Menu menu, MenuAction action, int param1, int param2){
+//*****************************************************************************
+switch (action)
+	{
+		case MenuAction_Select:
+		{
+		char map[64];
+			menu.GetItem(param2, map, sizeof(map));		
+			cmd_Elect_Map(param1,map);
+		}
+	}	
+return 0;
+}
 //*****************************************************************************
 void BuildMapMenu(){
 //*****************************************************************************	
 delete g_MapMenu;
 g_MapMenu = new Menu(Handler_MapSelectMenu, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem);
-char map[PLATFORM_MAX_PATH];
+//char map[PLATFORM_MAX_PATH];
 char currentMap[PLATFORM_MAX_PATH];
 GetCurrentMap(currentMap, sizeof(currentMap));
-for (int i = 0; i < g_MapList.Length; i++)
+if (g_mapFileSerial != -1) 
 	{
-	g_MapList.GetString(i, map, sizeof(map));	
-	g_MapMenu.AddItem(map);
+	int mapCount = GetArraySize(g_MapList)-1;
+	char mapName[32];
+	for (int i = 0; i != mapCount; i++)
+		{
+		GetArrayString(g_MapList, i, mapName, sizeof(mapName));		
+		g_MapMenu.AddItem(mapName,mapName);
+		}
+	}
+g_MapMenu.ExitButton = true;
+
 }
 //*****************************************************************************
 //public void OnPluginEnd(){
