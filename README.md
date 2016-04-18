@@ -62,3 +62,6 @@ Now key_words are map, wantmap, карта, карту.
 This plugin is meant to be run with Sourcemod 1.7 or above.
 
 This is work in progress and is not a final product
+
+## Possible problem
+1. Не проверял что будет при 100% кол-ве голосов за одну карту
