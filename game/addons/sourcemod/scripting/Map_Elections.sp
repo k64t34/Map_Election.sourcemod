@@ -28,7 +28,7 @@ char cPLUGIN_NAME[]=PLUGIN_NAME;
 char snd_votestart[]	={SND_VOTE_START}; //Sound vote start
 char snd_votefinish[]	={SND_VOTE_FINISH};//Sound vote finish
 //char PopularMenuItems[][MENU_ITEM_LEN]={"de_dust","de_dust2","de_inferno","de_piranesi","cs_office","de_aztec","de_cbble","de_chateau","de_nuke","de_tides","de_train"};
-// ConVar
+// CVar
 Handle mp_freezetime= INVALID_HANDLE; 
 int cvar_mp_freezetime;
 Handle sv_alltalk= INVALID_HANDLE;
@@ -42,6 +42,7 @@ int g_min_players_demand=2; //Minimal demands for voting start
 Handle cvar_key_words= INVALID_HANDLE;
 int key_word_cnt=MAX_KEY_WORDS;
 char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
+Handle g_version;
 // Global Var
 bool g_elect=false; //been requested a vote
 bool g_voting=false; //there is a voting;
@@ -111,6 +112,13 @@ if ( cvar_key_words == INVALID_HANDLE )
 	CreateConVar("sm_votemap_keywords","votemap;карту","Key words for demand map vote. Delimiter is ;");
 	cvar_key_words = FindConVar("sm_votemap_keywords");
     }
+	
+g_version = CreateConVar("mapelection_version", 
+	PLUGIN_VERSION, 
+	"MapElection version", 
+	FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);
+SetConVarString(g_version,PLUGIN_VERSION);
+
 LoadTranslations("common.phrases");
 LoadTranslations("nominations.phrases");
 LoadTranslations("basevotes.phrases");
