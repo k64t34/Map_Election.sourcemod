@@ -3,17 +3,19 @@
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-//#define DEBUG  1
+#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.4.1"
+#define PLUGIN_VERSION "0.4.2"
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
+#define MENU_ITEMS_SKIP 2
+#define MENU_ITEMS_MARK "√"
 #define SND_VOTE_START	"k64t\\votestart.mp3"
 #define SND_VOTE_FINISH	"k64t\\votefinish.mp3"
 #define MAX_KEY_WORDS 7
@@ -53,6 +55,7 @@ char part1[32]; //tmp var
 //char part2[32]; //tmp var
 Handle g_MapList = null;
 int g_mapFileSerial = -1;
+char item_select_mark[]={MENU_ITEMS_MARK}; //Mark selected item
 //Handle VoteTimer=INVALID_HANDLE;
 char MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN];//VotingItems
 int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
@@ -248,7 +251,7 @@ if (g_voting)
 	vMenu.SetTitle(Title);
 	if (g_vote_countdown==0)	return Plugin_Stop;
 	else 
-		{
+		{			
 		ReDisplayMenu();
 		return Plugin_Continue;	
 		}
@@ -260,15 +263,18 @@ else
 //*****************************************************************************
 public void ReDisplayMenu(){
 //*****************************************************************************
+char bufftmp[MENU_ITEM_LEN];
 for(int i = 1; i <= MaxClients; i++) 
 	{
 	if (IsClientConnected(i))
 		if (IsClientInGame(i))			
 			if (!IsFakeClient(i))	
 			{
+			//stpcpy(bufftmp);	
 			if (!vMenu.Display(i, g_vote_countdown))										
 			//if (!vMenu.Display(i, g_vote_time))									
 					LogError("DisplayMenu to client %d faild",i);
+				
 			}		
 	}
 }	
@@ -336,12 +342,13 @@ public int  MenuHandler1(Menu menu, MenuAction action, int param1/*-client*/, in
 /* If an option was selected, tell the client about the item. */
 if (action == MenuAction_Select)
 	{
-		#if defined DEBUG
+		#if defined DEBUG		
 		char info[32];
 		bool found = GetMenuItem(menu, param2, info, sizeof(info));		
 		LogMessage("MenuAction_Select. param1(client)=%d param2(item)=%d",param1,param2);
 		PrintToChat(param1, "You selected item: %d (found? %d info: %s)", param2, found, info);
 		LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);
+		DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
 		#endif
 		if ( param1<1 || param1>MaxClients ) 
 			{
@@ -377,12 +384,14 @@ if (action == MenuAction_Select)
 else if (action == MenuAction_Cancel)
 	{
 	LogMessage("Client %d's menu was cancelled.  Reason: %d", param1, param2);
+	DebugPrint("MenuAction_Cancel. %d %d",param1,param2);
 	}
 #endif	
 else if (action == MenuAction_DisplayItem)
 	{
 	#if defined DEBUG
 	LogMessage("MenuAction_DisplayItem %d ",param2);
+	DebugPrint("MenuAction_DisplayItem. %d %d",param1,param2);
 	#endif
 	if (param2==0)
 		//Format(Title,MENU_ITEM_LEN,"%T",ITEM_DO_NOT_CHANGE);
@@ -404,7 +413,7 @@ else if (action == MenuAction_End)
 	{
 	#if defined DEBUG
 	LogMessage("MenuAction_End ");
-	//DebugPrint("MenuAction_End ");
+	DebugPrint("MenuAction_End ");
 	#endif
 	//vMenu.RemoveAllItems();
 	//ReDisplayMenu();
@@ -412,6 +421,14 @@ else if (action == MenuAction_End)
 	//CloseHandle(menu);
 	}
 #endif	
+https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
+else if (action == MenuAction_DrawItem)
+		{
+		#if defined DEBUG	
+		LogMessage("MenuAction_DrawItem. %d %d",param1,param2);
+		DebugPrint("MenuAction_DrawItem. %d %d",param1,param2);
+		#endif
+		}	
 return 0;	
 }
 //*****************************************************************************
