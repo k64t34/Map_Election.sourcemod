@@ -3,7 +3,7 @@
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-//#define DEBUG  1
+#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
