@@ -3,7 +3,7 @@
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-#define DEBUG  1
+//#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
@@ -263,7 +263,6 @@ else
 //*****************************************************************************
 public void ReDisplayMenu(){
 //*****************************************************************************
-char bufftmp[MENU_ITEM_LEN];
 for(int i = 1; i <= MaxClients; i++) 
 	{
 	if (IsClientConnected(i))
@@ -405,6 +404,9 @@ else if (action == MenuAction_DisplayItem)
 		else
 			Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2],ItemVote[param2]);
 		}
+		if (PlayerVote[param1-1] ==param2) 		
+			StrCat(Title, sizeof(Title),item_select_mark);
+		
 	return RedrawMenuItem(Title);
 	}
 /* If the menu has ended, destroy it */
@@ -421,14 +423,26 @@ else if (action == MenuAction_End)
 	//CloseHandle(menu);
 	}
 #endif	
-https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
+//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
+#if defined DEBUG
 else if (action == MenuAction_DrawItem)
 		{
 		#if defined DEBUG	
 		LogMessage("MenuAction_DrawItem. %d %d",param1,param2);
 		DebugPrint("MenuAction_DrawItem. %d %d",param1,param2);
 		#endif
+		
 		}	
+#endif	
+#if defined DEBUG		
+else if (action == MenuAction_Start)
+		{
+		#if defined DEBUG	
+		LogMessage("MenuAction_Start");
+		DebugPrint("MenuAction_Start");
+		#endif
+		}			
+#endif		
 return 0;	
 }
 //*****************************************************************************
@@ -491,8 +505,8 @@ else
 //*****************************************************************************
 void BuildMapVoteMenu(){
 //*****************************************************************************
-vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//vMenu = new Menu(MenuHandler1,MENU_ACTIONS_DEFAULT);
-//vMenu = view_as<MenuAction>(MenuHandler1);//,MENU_ACTIONS_ALL);
+vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//warning 240: 'MenuAction:' is an old-style tag operation; use view_as<MenuAction>(expression) instead
+//vMenu = view_as<MenuAction>(MenuHandler1);//warning 237: coercing functions to and from primitives is unsupported and will be removed in the future
 
 Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
 vMenu.SetTitle(Title);
