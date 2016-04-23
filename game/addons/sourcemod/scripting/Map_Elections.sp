@@ -14,7 +14,7 @@
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
-#define MENU_ITEMS_SKIP 2
+#define MENU_ITEMS_SHIFT 2
 #define MENU_ITEMS_MARK "√"
 #define SND_VOTE_START	"k64t\\votestart.mp3"
 #define SND_VOTE_FINISH	"k64t\\votefinish.mp3"
@@ -62,6 +62,8 @@ int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
 int ItemVote[MENU_ITEMS_COUNT]; // Counter. How many votes for the item
 char Title[MENU_ITEM_LEN]; // Title of voting menu
 int CandidateCount;             //Count of candidate item to votemenu
+int g_item_shift=MENU_ITEMS_SHIFT;
+int g_item_count=MENU_ITEMS_COUNT;
 //int VoteMax;
 // DB
 //Handle k64tDB=INVALID_HANDLE;	              
@@ -356,7 +358,7 @@ if (action == MenuAction_Select)
 		else if (param2<0 || param2>MENU_ITEMS_COUNT)
 			{
 			LogError("MenuHandler param2=%d is out of range. Must be item id",param1);
-			}
+			}		
 		else	
 			{
 			if ( PlayerVote[param1-1] != -1 )
@@ -471,7 +473,7 @@ g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 int ItemWiner=0;
 int y=-1;
 PrintToChatAll("===========================\n%t\n---------------------------","Vote_Reault");
-for (int i=0;i!=MENU_ITEMS_COUNT;i++)
+for (int i=g_item_shift;i!=g_item_shift+MENU_ITEMS_COUNT;i++)
 	{	
 	#if defined SMLOG
 	LogMessage("ItemVote[%d]=%d",i,ItemVote[i]);
@@ -524,11 +526,14 @@ vMenu.SetTitle(Title);
 }*/
 /*BuildMapListForVoteMenu();*/
 for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
-	{	
 	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
-	}
+
+for (int i=1;i<=g_item_shift;i++)	
+	vMenu.AddItem("", "",ITEMDRAW_SPACER);
+	
 for (int i=0;i!=MAX_PLAYERS;i++)	
 	PlayerVote[i]=-1;
+	
 char ItemShift[MENU_ITEMS_COUNT];
 Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
 Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
