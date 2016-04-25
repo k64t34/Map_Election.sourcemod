@@ -536,14 +536,14 @@ for (int i=0;i!=g_item_shift;i++)
 vMenu.AddItem("", ""/*,ITEMDRAW_IGNORE*//*TEMDRAW_SPACER*/);//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)
 char ItemShift[MENU_ITEMS_COUNT];
 Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
-Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
-strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
+//Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
+strcopy(MenuItems[0],MENU_ITEM_LEN,ITEM_DO_NOT_CHANGE);
 vMenu.AddItem("", Title);
 for (int i=1+g_item_shift;i!=MENU_ITEMS_COUNT;i++)
 	{
-	ItemVote[i]=0;	
+	ItemVote[i]=0;
 	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i-g_item_shift]);
-	vMenu.AddItem("", Title);	
+	vMenu.AddItem("", Title);
 	}
 vMenu.ExitButton=false;
 }
