@@ -10,7 +10,7 @@
 #define DEBUG_PLAYER "K64t"
 
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.4.2"
+#define PLUGIN_VERSION "0.4.3" //Item Shift
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -63,7 +63,7 @@ int ItemVote[MENU_ITEMS_COUNT]; // Counter. How many votes for the item
 char Title[MENU_ITEM_LEN]; // Title of voting menu
 int CandidateCount;             //Count of candidate item to votemenu
 int g_item_shift=MENU_ITEMS_SHIFT;
-int g_item_count=MENU_ITEMS_COUNT;
+//int g_item_count=MENU_ITEMS_COUNT;
 //int VoteMax;
 // DB
 //Handle k64tDB=INVALID_HANDLE;	              
@@ -351,9 +351,9 @@ if (action == MenuAction_Select)
 		LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);
 		DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
 		#endif
-		if ( param1<1 || param1>MaxClients ) 
+		if ( 1<param1 || param1>MaxClients ) 
 			{
-			LogError("MenuHandler param1=%d is out of range. Must be client id",param1);			
+			LogError("MenuHandler param1=%d is out of range. Must be client id",param1);
 			}
 		else if (param2<0 || param2>MENU_ITEMS_COUNT)
 			{
@@ -394,11 +394,12 @@ else if (action == MenuAction_DisplayItem)
 	LogMessage("MenuAction_DisplayItem %d ",param2);
 	DebugPrint("MenuAction_DisplayItem. %d %d",param1,param2);
 	#endif
-	if (param2==0)
+	if (0==param2 && param2<=g_item_shift)
 		//Format(Title,MENU_ITEM_LEN,"%T",ITEM_DO_NOT_CHANGE);
 		return 0;
 	else
 		{
+			
 		char ItemShift[MENU_ITEMS_COUNT];
 		Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
 		if 	(ItemVote[param2]==0)
@@ -433,7 +434,7 @@ else if (action == MenuAction_DrawItem)
 		LogMessage("MenuAction_DrawItem. %d %d",param1,param2);
 		DebugPrint("MenuAction_DrawItem. %d %d",param1,param2);
 		#endif
-		
+		if (param2<g_item_shift) return ITEMDRAW_NOTEXT | ITEMDRAW_SPACER;		
 		}	
 #endif	
 #if defined DEBUG		
@@ -473,7 +474,7 @@ g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 int ItemWiner=0;
 int y=-1;
 PrintToChatAll("===========================\n%t\n---------------------------","Vote_Reault");
-for (int i=g_item_shift;i!=g_item_shift+MENU_ITEMS_COUNT;i++)
+for (int i=g_item_shift;i!=MENU_ITEMS_COUNT;i++)
 	{	
 	#if defined SMLOG
 	LogMessage("ItemVote[%d]=%d",i,ItemVote[i]);
@@ -525,24 +526,23 @@ vMenu.SetTitle(Title);
 	//			SQL_FetchString(IPQuery,0,ip,sizeof(ip));
 }*/
 /*BuildMapListForVoteMenu();*/
-for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
+for (int i=g_item_shift+1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
 	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
 
-for (int i=1;i<=g_item_shift;i++)	
-	vMenu.AddItem("", "",ITEMDRAW_SPACER);
-	
 for (int i=0;i!=MAX_PLAYERS;i++)	
 	PlayerVote[i]=-1;
-	
+
+for (int i=0;i!=g_item_shift;i++)	
+vMenu.AddItem("", ""/*,ITEMDRAW_IGNORE*//*TEMDRAW_SPACER*/);//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)
 char ItemShift[MENU_ITEMS_COUNT];
 Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
 Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
 vMenu.AddItem("", Title);
-for (int i=1;i!=MENU_ITEMS_COUNT;i++)
+for (int i=1+g_item_shift;i!=MENU_ITEMS_COUNT;i++)
 	{
 	ItemVote[i]=0;	
-	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i]);
+	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i-g_item_shift]);
 	vMenu.AddItem("", Title);	
 	}
 vMenu.ExitButton=false;
