@@ -345,11 +345,10 @@ if (action == MenuAction_Select)
 	{
 		#if defined DEBUG		
 		char info[32];
-		bool found = GetMenuItem(menu, param2, info, sizeof(info));		
-		LogMessage("MenuAction_Select. param1(client)=%d param2(item)=%d",param1,param2);
-		PrintToChat(param1, "You selected item: %d (found? %d info: %s)", param2, found, info);
-		LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);
-		DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
+		bool found = GetMenuItem(menu, param2, info, sizeof(info));	//LogMessage("MenuAction_Select. param1(client)=%d param2(item)=%d",param1,param2);
+		DebugPrint("%d selected item: %d (found? %d info: %s)", param1,param2, found, info);
+		//LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);
+		//DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
 		#endif
 		if ( 1<param1 || param1>MaxClients ) 
 			{
@@ -359,14 +358,14 @@ if (action == MenuAction_Select)
 			{
 			LogError("MenuHandler param2=%d is out of range. Must be item id",param1);
 			}		
-		else	
+		else
 			{
 			if ( PlayerVote[param1-1] != -1 )
 				{
 				ItemVote[PlayerVote[param1-1]]--;
 				}
-			PlayerVote[param1-1]=param2;
-			ItemVote[param2]++;			
+			PlayerVote[param1-1]=param2-g_item_shift;
+			ItemVote[param2-g_item_shift]++;			
 			//if (!RemoveMenuItem(menu, param2)) LogMessage("Error in RemoveMenuItem(%d)",param2);			
 			//Format(Title,MENU_ITEM_LEN,"%s [%d]",MenuItems[param2],ItemVote[param2]);			
 			#if defined DEBUG
@@ -379,36 +378,30 @@ if (action == MenuAction_Select)
 				
 			vMenu.Display(param1, g_vote_countdown);
 		}
-	}
-/* If the menu was cancelled, print a message to the server about it. */
+	}/* If the menu was cancelled, print a message to the server about it. */
 #if defined DEBUG
 else if (action == MenuAction_Cancel)
-	{
-	LogMessage("Client %d's menu was cancelled.  Reason: %d", param1, param2);
+	{	
 	DebugPrint("MenuAction_Cancel. %d %d",param1,param2);
 	}
 #endif	
 else if (action == MenuAction_DisplayItem)
 	{
-	#if defined DEBUG
-	LogMessage("MenuAction_DisplayItem %d ",param2);
+	#if defined DEBUG	
 	DebugPrint("MenuAction_DisplayItem. %d %d",param1,param2);
 	#endif
-	if (0==param2 && param2<=g_item_shift)
-		//Format(Title,MENU_ITEM_LEN,"%T",ITEM_DO_NOT_CHANGE);
-		return 0;
+	if (param2<=g_item_shift)return 0;	
 	else
-		{
-			
+		{			
 		char ItemShift[MENU_ITEMS_COUNT];
-		Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
-		if 	(ItemVote[param2]==0)
-			Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2]);
+		Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2-g_item_shift]);
+		if 	(ItemVote[param2-g_item_shift]==0)
+			Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
 		else
-			Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2],ItemVote[param2]);
+			Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2-g_item_shift],ItemVote[param2-g_item_shift]);
 		}
-		if (PlayerVote[param1-1] ==param2) 		
-			StrCat(Title, sizeof(Title),item_select_mark);
+	//if (PlayerVote[param1-1] ==param2)
+	//		StrCat(Title, sizeof(Title),item_select_mark);
 		
 	return RedrawMenuItem(Title);
 	}
@@ -416,22 +409,16 @@ else if (action == MenuAction_DisplayItem)
 #if defined DEBUG
 else if (action == MenuAction_End)
 	{
-	#if defined DEBUG
-	LogMessage("MenuAction_End ");
+	#if defined DEBUG	
 	DebugPrint("MenuAction_End ");
 	#endif
-	//vMenu.RemoveAllItems();
-	//ReDisplayMenu();
-	//delete menu;
-	//CloseHandle(menu);
+	//vMenu.RemoveAllItems();//ReDisplayMenu();//delete menu;//CloseHandle(menu);
 	}
 #endif	
-//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
-#if defined DEBUG
+#if defined DEBUG //https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
 else if (action == MenuAction_DrawItem)
 		{
-		#if defined DEBUG	
-		LogMessage("MenuAction_DrawItem. %d %d",param1,param2);
+		#if defined DEBUG
 		DebugPrint("MenuAction_DrawItem. %d %d",param1,param2);
 		#endif
 		if (param2<g_item_shift) return ITEMDRAW_NOTEXT | ITEMDRAW_SPACER;		
@@ -440,8 +427,7 @@ else if (action == MenuAction_DrawItem)
 #if defined DEBUG		
 else if (action == MenuAction_Start)
 		{
-		#if defined DEBUG	
-		LogMessage("MenuAction_Start");
+		#if defined DEBUG
 		DebugPrint("MenuAction_Start");
 		#endif
 		}			
@@ -526,26 +512,33 @@ vMenu.SetTitle(Title);
 	//			SQL_FetchString(IPQuery,0,ip,sizeof(ip));
 }*/
 /*BuildMapListForVoteMenu();*/
-for (int i=g_item_shift+1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
+for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
 	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
 
 for (int i=0;i!=MAX_PLAYERS;i++)	
 	PlayerVote[i]=-1;
 
 for (int i=0;i!=g_item_shift;i++)	
-vMenu.AddItem("", ""/*,ITEMDRAW_IGNORE*//*TEMDRAW_SPACER*/);//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)
+	vMenu.AddItem("", ""/*,ITEMDRAW_IGNORE*//*TEMDRAW_SPACER*/);//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)
 char ItemShift[MENU_ITEMS_COUNT];
 Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
-//Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
-strcopy(MenuItems[0],MENU_ITEM_LEN,ITEM_DO_NOT_CHANGE);
+ItemVote[g_item_shift]=0;
+Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
+strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
 vMenu.AddItem("", Title);
-for (int i=1+g_item_shift;i!=MENU_ITEMS_COUNT;i++)
+
+#if defined SMLOG
+for (int i=0;i!=MENU_ITEMS_COUNT;i++) DebugPrint("%d %s",i,MenuItems[i]);
+#endif
+for (int i=g_item_shift+1;i!=MENU_ITEMS_COUNT;i++)
 	{
-	ItemVote[i]=0;
+	DebugPrint("%d %s",i,MenuItems[i-g_item_shift]);
+	ItemVote[i-g_item_shift]=0;
 	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i-g_item_shift]);
 	vMenu.AddItem("", Title);
 	}
 vMenu.ExitButton=false;
+vMenu.ExitBackButton=false;
 }
 
 //***********************************************
