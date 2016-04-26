@@ -3,14 +3,14 @@
 //->Добавить счетчик доступных карт к номинации для каждого игрока
 //->Не работает PrintToChatAll("%t","Current Map Stays");	// rtv "Голосование состоялось! Текущая карта продолжается! "
 // Translation menu https://forums.alliedmods.net/showthread.php?t=281220&highlight=translation
-#define DEBUG  1
+//#define DEBUG  1
 #define INFO 1
 #define SMLOG 1
 #define DEBUG_LOG 1
-#define DEBUG_PLAYER "K64t"
-
+//#define DEBUG_PLAYER "K64t"
+#define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.4.3" //Item Shift
+#define PLUGIN_VERSION "0.4.4" //Item Shift
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -327,7 +327,7 @@ else
 		g_elect=true;
 		PrintToChatAll("%t","Start_Vote_After_Round_End");	//map_election "Голосование начнется сразу после завершения раунда"
 		PrintToChatAll("%t:","Nominated");	//nomination "Предложены для голосования"
-		for (int i=0;i!=MENU_ITEMS_COUNT;i++)PrintToChatAll("%s",MenuItems[i]);
+		for (int i=1;i!=MENU_ITEMS_COUNT-g_item_shift;i++)PrintToChatAll("%s",MenuItems[i]);
 		}
 	else
 		{
@@ -364,18 +364,13 @@ if (action == MenuAction_Select)
 				{
 				ItemVote[PlayerVote[param1-1]]--;
 				}
-			PlayerVote[param1-1]=param2-g_item_shift;
-			ItemVote[param2-g_item_shift]++;			
+			PlayerVote[param1-1]=param2;
+			ItemVote[param2]++;			
 			//if (!RemoveMenuItem(menu, param2)) LogMessage("Error in RemoveMenuItem(%d)",param2);			
 			//Format(Title,MENU_ITEM_LEN,"%s [%d]",MenuItems[param2],ItemVote[param2]);			
 			#if defined DEBUG
 			LogMessage("int item for %i is %s ",param2,Title);
-			#endif
-			//if (param2==MENU_ITEMS_COUNT)
-			//	if (!AddMenuItem(menu,""/*Title*/,Title)) LogMessage("Error in AddMenuItem(%d)",param2);				
-			//else
-			//	if (!InsertMenuItem(menu,param2,""/*strBuf*/,Title)) LogMessage("Error in InsertMenuItem(%d)",param2);
-				
+			#endif				
 			vMenu.Display(param1, g_vote_countdown);
 		}
 	}/* If the menu was cancelled, print a message to the server about it. */
@@ -390,18 +385,28 @@ else if (action == MenuAction_DisplayItem)
 	#if defined DEBUG	
 	DebugPrint("MenuAction_DisplayItem. %d %d",param1,param2);
 	#endif
-	if (param2<=g_item_shift)return 0;	
+	if (param2<g_item_shift)return 0;
 	else
-		{			
-		char ItemShift[MENU_ITEMS_COUNT];
-		Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2-g_item_shift]);
-		if 	(ItemVote[param2-g_item_shift]==0)
-			Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
+		{		
+		if (param2<=g_item_shift)		
+			{			
+			if 	(ItemVote[param2]==0)
+				Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
+			else
+				Format(Title,MENU_ITEM_LEN,"%t[%d]",ITEM_DO_NOT_CHANGE,ItemVote[param2]);	
+			}	
 		else
-			Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2-g_item_shift],ItemVote[param2-g_item_shift]);
+			{
+			char ItemShift[MENU_ITEMS_COUNT];	
+			Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
+			if 	(ItemVote[param2]==0)
+				Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
+			else
+				Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2-g_item_shift],ItemVote[param2]);
+			}
 		}
-	//if (PlayerVote[param1-1] ==param2)
-	//		StrCat(Title, sizeof(Title),item_select_mark);
+	if (PlayerVote[param1-1] ==param2)
+			StrCat(Title, sizeof(Title),item_select_mark);
 		
 	return RedrawMenuItem(Title);
 	}
@@ -457,35 +462,38 @@ g_vote_delay=GetTime()+1;
 g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
 g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
-int ItemWiner=0;
+int ItemWiner=g_item_shift;
 int y=-1;
 PrintToChatAll("===========================\n%t\n---------------------------","Vote_Reault");
 for (int i=g_item_shift;i!=MENU_ITEMS_COUNT;i++)
 	{	
-	#if defined SMLOG
-	LogMessage("ItemVote[%d]=%d",i,ItemVote[i]);
+	#if defined DEBUG
+	DebugPrint("ItemVote[%d]=%d",i,ItemVote[i]);
 	#endif		
-	PrintToChatAll("%d - %s",ItemVote[i],MenuItems[i]);	
+	PrintToChatAll("%d - %s",ItemVote[i],MenuItems[i-g_item_shift]);	
 	if (ItemVote[i]>y)
 		{
 		y=ItemVote[i];
-		ItemWiner=i;	
+		ItemWiner=i;
 		}
 	}
 PrintToChatAll("---------------------------");	
-if (ItemWiner>0)
+#if defined DEBUG
+	DebugPrint("ItemWiner=%d",ItemWiner);
+#endif
+if (ItemWiner>g_item_shift)
 	{	
-	#if defined SMLOG
-	LogMessage("ItemWiner=%d %s",ItemWiner,MenuItems[ItemWiner]);
+	#if defined DEBUG
+	DebugPrint("ItemWiner=%d %s",ItemWiner,MenuItems[ItemWiner]);
 	#endif
-	PrintToChatAll("%t - %s","Win_Item",MenuItems[ItemWiner]); //map_election "Победил пункт"
-	PrintToChatAll("%t","Changing Maps",MenuItems[ItemWiner]); //rtv "Голосование состоялось! Смена карты на {1}!"
-	ForceChangeLevel(MenuItems[ItemWiner], "map vote");	
+	PrintToChatAll("%t - %s","Win_Item",MenuItems[ItemWiner-g_item_shift]); //map_election "Победил пункт"
+	PrintToChatAll("%t","Changing Maps",MenuItems[ItemWiner-g_item_shift]); //rtv "Голосование состоялось! Смена карты на {1}!"
+	ForceChangeLevel(MenuItems[ItemWiner-g_item_shift], "map vote");	
 	}
 else
 	{
-	#if defined SMLOG
-	LogMessage("%s","noWin_Item");
+	#if defined DEBUG
+	DebugPrint("%s","noWin_Item");
 	#endif
 	PrintToChatAll("%t - %t","Win_Item",ITEM_DO_NOT_CHANGE); //map_election "Победил пункт"
 	PrintToChatAll("%t","Current Map Stays");	 // rtv "Голосование состоялось! Текущая карта продолжается! "
@@ -527,12 +535,14 @@ Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
 vMenu.AddItem("", Title);
 
-#if defined SMLOG
+#if defined DEBUG
 for (int i=0;i!=MENU_ITEMS_COUNT;i++) DebugPrint("%d %s",i,MenuItems[i]);
 #endif
 for (int i=g_item_shift+1;i!=MENU_ITEMS_COUNT;i++)
 	{
+	#if defined DEBUG	
 	DebugPrint("%d %s",i,MenuItems[i-g_item_shift]);
+	#endif
 	ItemVote[i-g_item_shift]=0;
 	Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[i-g_item_shift]);
 	vMenu.AddItem("", Title);
