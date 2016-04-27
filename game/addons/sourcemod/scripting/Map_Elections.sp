@@ -10,7 +10,7 @@
 //#define DEBUG_PLAYER "K64t"
 #define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.4.4" //Item Shift
+#define PLUGIN_VERSION "0.4.6" //Item Shift
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -44,7 +44,7 @@ int g_min_players_demand=2; //Minimal demands for voting start
 Handle cvar_key_words= INVALID_HANDLE;
 int key_word_cnt=MAX_KEY_WORDS;
 char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
-Handle g_version;
+Handle cvar_g_version;
 int g_item_shift=MENU_ITEMS_SHIFT; //Shift menu items down. Start item will g_item_shift
 Handle cvar_g_item_shift=null;
 // Global Var
@@ -124,8 +124,9 @@ if ( cvar_g_item_shift == null )
 	CreateConVar("sm_menu_item_shift","0","Skip the given number of items in the vote menu",0.0,true,0,true,4.0);
 	cvar_g_item_shift = FindConVar("sm_menu_item_shift");
     }
-g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);
-	SetConVarString(g_version,PLUGIN_VERSION);
+//cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);
+cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY);
+	SetConVarString(cvar_g_version,PLUGIN_VERSION,false,true);
 
 LoadTranslations("common.phrases");
 LoadTranslations("nominations.phrases");
@@ -407,8 +408,9 @@ else if (action == MenuAction_DisplayItem)
 			}	
 		else
 			{
-			char ItemShift[MENU_ITEMS_COUNT];	
-			Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
+			char ItemShift[MENU_ITEMS_COUNT]="\0";
+			if (MENU_ITEMS_COUNT>ItemVote[param2])		
+				Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
 			if 	(ItemVote[param2]==0)
 				Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
 			else
