@@ -10,7 +10,7 @@
 //#define DEBUG_PLAYER "K64t"
 #define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.4.6" //Item Shift
+#define PLUGIN_VERSION "0.5" //Item Shift
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
