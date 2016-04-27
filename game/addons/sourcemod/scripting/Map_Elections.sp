@@ -45,6 +45,8 @@ Handle cvar_key_words= INVALID_HANDLE;
 int key_word_cnt=MAX_KEY_WORDS;
 char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
 Handle g_version;
+int g_item_shift=MENU_ITEMS_SHIFT; //Shift menu items down. Start item will g_item_shift
+Handle cvar_g_item_shift=null;
 // Global Var
 bool g_elect=false; //been requested a vote
 bool g_voting=false; //there is a voting;
@@ -62,7 +64,6 @@ int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
 int ItemVote[MENU_ITEMS_COUNT]; // Counter. How many votes for the item
 char Title[MENU_ITEM_LEN]; // Title of voting menu
 int CandidateCount;             //Count of candidate item to votemenu
-int g_item_shift=MENU_ITEMS_SHIFT;
 //int g_item_count=MENU_ITEMS_COUNT;
 //int VoteMax;
 // DB
@@ -96,19 +97,19 @@ if ( sv_alltalk == INVALID_HANDLE )
 cvar_sm_vote_delay = FindConVar("sm_vote_delay");
 if ( cvar_sm_vote_delay == INVALID_HANDLE )
     {
-	CreateConVar("sm_vote_delay","600","Delay between votes",true,true,60);
+	CreateConVar("sm_vote_delay","600","Delay between votes",0,true,60);
 	cvar_sm_vote_delay = FindConVar("sm_vote_delay");    
     }	
 cvar_sm_mapvote_voteduration = FindConVar("sm_mapvote_voteduration");
 if ( cvar_sm_mapvote_voteduration == INVALID_HANDLE )
     {
-	CreateConVar("sm_mapvote_voteduration","20","Duration voting in seconds",true,true,60);
+	CreateConVar("sm_mapvote_voteduration","20","Duration voting in seconds",0,true,60);
 	cvar_sm_mapvote_voteduration = FindConVar("sm_mapvote_voteduration");    
     }	
 cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");
 if ( cvar_sm_rtv_minplayers == INVALID_HANDLE )
     {
-	CreateConVar("sm_rtv_minplayers","1","Number of players required before RTV will be enabled.",true,true,60);
+	CreateConVar("sm_rtv_minplayers","2","Number of players required before RTV will be enabled.",0,true,60);
 	cvar_sm_rtv_minplayers = FindConVar("sm_rtv_minplayers");    
     }	
 cvar_key_words = FindConVar("sm_votemap_keywords");
@@ -117,12 +118,14 @@ if ( cvar_key_words == INVALID_HANDLE )
 	CreateConVar("sm_votemap_keywords","votemap;карту","Key words for demand map vote. Delimiter is ;");
 	cvar_key_words = FindConVar("sm_votemap_keywords");
     }
-	
-g_version = CreateConVar("mapelection_version", 
-	PLUGIN_VERSION, 
-	"MapElection version", 
-	FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);
-SetConVarString(g_version,PLUGIN_VERSION);
+cvar_g_item_shift = FindConVar("sm_menu_item_shift");	
+if ( cvar_g_item_shift == null )
+    {
+	CreateConVar("sm_menu_item_shift","0","Skip the given number of items in the vote menu",0.0,true,0,true,4.0);
+	cvar_g_item_shift = FindConVar("sm_menu_item_shift");
+    }
+g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);
+	SetConVarString(g_version,PLUGIN_VERSION);
 
 LoadTranslations("common.phrases");
 LoadTranslations("nominations.phrases");
@@ -166,8 +169,19 @@ g_elect=false;
 g_voting=false;
 CandidateCount=0;
 AutoExecConfig(true, "Map_Elections");
+for (int i=0;i!=MAX_PLAYERS;i++)PlayerVote[i]=-1;//Reset players voice
+//Read MapList
+if (ReadMapList(g_MapList,g_mapFileSerial,"default",MAPLIST_FLAG_CLEARARRAY)== null)	
+	if (g_mapFileSerial == -1)
+		SetFailState("Unable to create a valid map list.");	
+}
+//***********************************************
+public void OnConfigsExecuted(){
+//***********************************************
+#if defined DEBUG
+DebugPrint("OnConfigsExecuted");
+#endif
 g_vote_time= GetConVarFloat(cvar_sm_mapvote_voteduration);
-
 char tmpBuf[256];
 GetConVarString(cvar_key_words, tmpBuf, sizeof(tmpBuf));
 key_word_cnt=ExplodeString(tmpBuf,";",key_word,MAX_KEY_WORDS,MENU_ITEM_LEN);
@@ -184,11 +198,7 @@ for (int i=0;i!=sizeof(key_word);i++) DebugPrint("%d %s",i,key_word[i]);
 g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
 g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
-for (int i=0;i!=MAX_PLAYERS;i++)PlayerVote[i]=-1;
-//Read MapList
-if (ReadMapList(g_MapList,g_mapFileSerial,"default",MAPLIST_FLAG_CLEARARRAY)== null)	
-	if (g_mapFileSerial == -1)
-		SetFailState("Unable to create a valid map list.");	
+g_item_shift=GetConVarInt(cvar_g_item_shift);
 }
 //***********************************************
 public Action Command_Say(int client, int args){
@@ -420,7 +430,7 @@ else if (action == MenuAction_End)
 	//vMenu.RemoveAllItems();//ReDisplayMenu();//delete menu;//CloseHandle(menu);
 	}
 #endif	
-#if defined DEBUG //https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
+// https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)#AddMenuItem
 else if (action == MenuAction_DrawItem)
 		{
 		#if defined DEBUG
@@ -428,7 +438,6 @@ else if (action == MenuAction_DrawItem)
 		#endif
 		if (param2<g_item_shift) return ITEMDRAW_NOTEXT | ITEMDRAW_SPACER;		
 		}	
-#endif	
 #if defined DEBUG		
 else if (action == MenuAction_Start)
 		{
@@ -496,7 +505,7 @@ else
 	DebugPrint("%s","noWin_Item");
 	#endif
 	PrintToChatAll("%t - %t","Win_Item",ITEM_DO_NOT_CHANGE); //map_election "Победил пункт"
-	PrintToChatAll("%t","Current Map Stays");	 // rtv "Голосование состоялось! Текущая карта продолжается! "
+	PrintToChatAll("%s","Current Map Stays");	 // rtv "Голосование состоялось! Текущая карта продолжается! "
 	}
 }
 //*****************************************************************************
