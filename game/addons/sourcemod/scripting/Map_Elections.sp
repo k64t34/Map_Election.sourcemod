@@ -14,7 +14,7 @@
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
-#define MENU_ITEMS_SHIFT 2
+#define MENU_ITEMS_SHIFT 0
 #define MENU_ITEMS_MARK "√"
 #define SND_VOTE_START	"k64t\\votestart.mp3"
 #define SND_VOTE_FINISH	"k64t\\votefinish.mp3"
