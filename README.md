@@ -56,6 +56,7 @@ Now key_words are map, wantmap, карта, карту.
 -Convert more internal stuff into CVARS
 -Add sm_mapvote_dontchange Specifies if a 'Don't Change' option should be added to early votes (like rockthevote)
 -Add sm_mapvote_include Specifies how many maps to include in the vote.
+-Если единственный пользовтель (не считая ботов) подал запрос на смену карты, не зависимо от sm_rtv_minplayers разрешить голосование
 -
 
 ##Other Information:
