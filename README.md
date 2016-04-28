@@ -1,4 +1,14 @@
 # Map_Election
+
+The plugin works like RTV (Rock The Vote) till the moment vote. While voting, the panel is displayed all the time of voting. The player can see a selection of other players and can change their choice in favor of the other map.
+
+In the period of voting, plugin sets sv_alltalk 1, that allows players to additionally discuss the choice of map.
+
+Voting starts at the beginning of the round. 
+Plugin sets mp_freeztime equal to voting time. Thus, the world stops at the time of the vote, and the players can fully concentrate on the vote.
+
+In my opinion this interface allows to reach a consensus between the players.
+
 Sourcemod плагин для голосования выбора карты.
 Плагин работает подобно RTV до момента голосования.
 Во время голосования панель выбора карт отображается всё время голосования.
@@ -7,29 +17,6 @@ Sourcemod плагин для голосования выбора карты.
 На время голосования плагин включает sv_alltalk 1, что дает возможность игрокам дополнительно обсудить выбор карты.
 Голосование запускается в начале раунда, предворительно выставив  mp_freeztime  равно времени голосования.
 Т.о. игровой мир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
-
-##Title: Map election
-##Descriptione: Provides map voting and immediately showing the choice users.Players can agree during voting  and change their choice to any map.
-##Cvar:No cvar yet
-##Dependencies: No
-
-The plugin works like RTV (Rock The Vote) till the moment vote.
-While voting, the panel is displayed all the time of voting.
-The player can see a selection of other players and can change their choice in favor of the other cards.
-
-In the period of voting, plugin sets sv_alltalk 1, that allows players to additionally discuss the choice of map.
-
-Voting starts at the beginning of the round. Plugin sets mp_freeztime equal to voting time.
-Thus, the world stops at the time of the vote, and the players can fully concentrate on the vote.
-
-In my opinion this interface allows to reach a consensus between the players.
-
-##Pic
-
-##Video
-
-##Changelog
-* Initial release.
 
 ##Installation instructions
 Download the attached zip archive and extract to your game folder.
@@ -43,10 +30,12 @@ addons
 ##Usage:
 say key_word [map_name]
 
-Now key_words are map, wantmap, карта, карту.
-##Known Issues:
--Incorrect translation
--Incorrect language
+Now key_words are: votemap, карту.
+
+You can set any key words in CVAR sm_votemap_keywords.
+National words are supported, but case sensitive.
+
+Можно использовать слова на любом языке. Ключевое слово чувствительно к регистру.
 
 ##Plans
 -Add translations support
@@ -59,10 +48,21 @@ Now key_words are map, wantmap, карта, карту.
 -Если единственный пользовтель (не считая ботов) подал запрос на смену карты, не зависимо от sm_rtv_minplayers разрешить голосование
 -
 
+
+##Changelog
+* Versoin 0.4
+- Add select map for vote like RTV.
+* Versoin 0.3
+- Added CVAR sm_votemap_keywords - кey words for demand map vote.
+* Versoin 0.2
+- Added translation. Used phrases from common, nominations, basevotes, mapchooser, rockthevote,
+that guarantees more internationalization.
+* Versoin 0.1 
+- Initial release.
+
+
+
 ##Other Information:
 This plugin is meant to be run with Sourcemod 1.7 or above.
 
 This is work in progress and is not a final product
-
-## Possible problem
-1. Не проверял что будет при 100% кол-ве голосов за одну карту
