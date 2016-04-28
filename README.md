@@ -1,5 +1,7 @@
 # Map_Election
 
+![GitHub Logo](/fy_xbox0086.png)Format: ![Alt Text](url)
+
 The plugin works like RTV (Rock The Vote) till the moment vote. While voting, the panel is displayed all the time of voting. The player can see a selection of other players and can change their choice in favor of the other map.
 
 In the period of voting, plugin sets sv_alltalk 1, that allows players to additionally discuss the choice of map.
@@ -19,13 +21,18 @@ Sourcemod плагин для голосования выбора карты.
 Т.о. игровой мир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
 
 ##Installation instructions
-Download the attached zip archive and extract to your game folder.
-Install archive contain:
+Download the attached zip archive and extract to your game folder. Install archive contain:
+
 addons
+
   plugins
+  
     map_vote.smx
+    
   transletion
+  
     map_Elections.phrases.txt 
+    
 
 ##Usage:
 say key_word [map_name]
