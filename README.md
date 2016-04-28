@@ -1,6 +1,6 @@
 # Map_Election
 
-![GitHub Logo](/fy_xbox0086.png)Format: ![Alt Text](url)
+![GitHub Logo](/fy_xbox0086.png)
 
 The plugin works like RTV (Rock The Vote) till the moment vote. While voting, the panel is displayed all the time of voting. The player can see a selection of other players and can change their choice in favor of the other map.
 
@@ -21,7 +21,7 @@ Sourcemod плагин для голосования выбора карты.
 Т.о. игровой мир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
 
 ##Installation instructions
-Download the attached zip archive and extract to your game folder. Install archive contain:
+Download the attached [zip archive](/Map_Election.zip ) and extract to your game folder. Install archive contain:
 
 addons
 
@@ -45,28 +45,29 @@ National words are supported, but case sensitive.
 Можно использовать слова на любом языке. Ключевое слово чувствительно к регистру.
 
 ##Plans
-
--Add sound accompaniment.
--Добавить звуковое сопровождение 
--Convert more internal stuff into CVARS
--Add sm_mapvote_dontchange Specifies if a 'Don't Change' option should be added to early votes (like rockthevote)
--Add sm_mapvote_include Specifies how many maps to include in the vote.
--Если единственный пользовтель (не считая ботов) подал запрос на смену карты, не зависимо от sm_rtv_minplayers разрешить голосование
--Add select maps for vote like RTV v.0.4
--Add cvar for customizing key_word v.0.3
--Add translations support v.0.2
+- [ ] Add sound accompaniment. Добавить звуковое сопровождение 
+- [ ] Convert more internal stuff into CVARS
+- [ ] Add sm_mapvote_dontchange Specifies if a 'Don't Change' option should be added to early votes (like rockthevote)
+- [ ] Add sm_mapvote_include Specifies how many maps to include in the vote.
+- [ ] Если единственный пользовтель (не считая ботов) подал запрос на смену карты, не зависимо от sm_rtv_minplayers разрешить голосование
+- [x] Add select maps for vote like RTV v.0.4
+- [x] Add cvar for customizing key_word v.0.3
+- [x] Add translations support v.0.2
 
 
 ##Changelog
 * Versoin 0.5
-* 
+ 
 - Add maek to selected item
 - Добавлена метка выбранного пункта меню
-- 
+ 
 * Versoin 0.4
 - Add select map for vote like RTV.
+- 
 * Versoin 0.3
+
 - Added CVAR sm_votemap_keywords - кey words for demand map vote.
+
 * Versoin 0.2
 
 - Added translation. Used phrases from common, nominations, basevotes, mapchooser, rockthevote,
@@ -75,12 +76,8 @@ that guarantees more internationalization.
 - Интернационализация
 
 * Versoin 0.1 
+
 - Initial release.
- 
- 
-
-
-
 
 ##Other Information:
 This plugin is meant to be run with Sourcemod 1.7 or above.
