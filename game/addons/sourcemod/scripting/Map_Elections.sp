@@ -10,7 +10,7 @@
 //#define DEBUG_PLAYER "K64t"
 #define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.5" //Item Shift
+#define PLUGIN_VERSION "0.5.1" //Correct nomination list
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -63,7 +63,7 @@ char MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN];//VotingItems
 int PlayerVote[MAX_PLAYERS];    // For which item voted player.-1 = no vote.
 int ItemVote[MENU_ITEMS_COUNT]; // Counter. How many votes for the item
 char Title[MENU_ITEM_LEN]; // Title of voting menu
-int CandidateCount;             //Count of candidate item to votemenu
+int CandidateCount=0;             //Count of candidate item to votemenu
 //int g_item_count=MENU_ITEMS_COUNT;
 //int VoteMax;
 // DB
@@ -124,9 +124,10 @@ if ( cvar_g_item_shift == null )
 	CreateConVar("sm_menu_item_shift","0","Skip the given number of items in the vote menu",0.0,true,0,true,4.0);
 	cvar_g_item_shift = FindConVar("sm_menu_item_shift");
     }
-//cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);
-cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY);
-	SetConVarString(cvar_g_version,PLUGIN_VERSION,false,true);
+//cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);                                                                                           
+//cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY);
+cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	SetConVarString(cvar_g_version,PLUGIN_VERSION,true,true);
 
 LoadTranslations("common.phrases");
 LoadTranslations("nominations.phrases");
@@ -204,7 +205,6 @@ g_item_shift=GetConVarInt(cvar_g_item_shift);
 //***********************************************
 public Action Command_Say(int client, int args){
 //***********************************************
-//=> use GetCmdArg
 #if defined DEBUG
 DebugPrint("Command_Say.Client %d, args %d",client,args);
 #endif
@@ -242,12 +242,6 @@ cvar_mp_freezetime=GetConVarInt(mp_freezetime);
 SetConVarInt(mp_freezetime, g_vote_countdown);
 cvar_sv_alltalk=GetConVarInt(sv_alltalk);
 SetConVarInt(sv_alltalk, 1);
-//https://forums.alliedmods.net/showthread.php?t=264033
-//origin vMenu = CreateMenu(MenuHandler1, MenuAction:MENU_ACTIONS_ALL);
-//https://wiki.alliedmods.net/Menu_API_(SourceMod)
-//Panel panel = view_as<Panel>param2;
-//https://wiki.alliedmods.net/Menu_API_(SourceMod)#Basic_Panel
-//menu = CreateMenu(MenuHandler1, MenuAction:MENU_ACTIONS_ALL);
 BuildMapVoteMenu();
 g_voting=true;
 CreateTimer(g_vote_time+1.0,EndVote);	
@@ -322,7 +316,12 @@ else
 	if (AddMenuMapItem(map))				
 		PrintToChatAll("%t","Map Nominated",Title,map);//"Игрок {1} предложил {2} для голосование по смене карты."
 	else	
-		PrintToChat(client,"Map %s is not nominated",map);			
+		{
+		#if defined DEBUG
+		DebugPrint("Map %s is not nominated",map);
+		#endif
+		PrintToChat(client,"Map %s is not nominated",map);
+		}
 	if (client!=0)
 		{
 		if (PlayerVote[client-1]==-1)
@@ -337,8 +336,8 @@ else
 		{
 		g_elect=true;
 		PrintToChatAll("%t","Start_Vote_After_Round_End");	//map_election "Голосование начнется сразу после завершения раунда"
-		PrintToChatAll("%t:","Nominated");	//nomination "Предложены для голосования"
-		for (int i=1;i!=MENU_ITEMS_COUNT-g_item_shift;i++)PrintToChatAll("%s",MenuItems[i]);
+		PrintToChatAll("%t:","Nominated");	//nomination "Предложены для голосования"		
+		for (int i=1;i<=CandidateCount/*MENU_ITEMS_COUNT-g_item_shift*/;i++)PrintToChatAll("%s",MenuItems[i]);
 		}
 	else
 		{
@@ -358,8 +357,7 @@ if (action == MenuAction_Select)
 		char info[32];
 		bool found = GetMenuItem(menu, param2, info, sizeof(info));	//LogMessage("MenuAction_Select. param1(client)=%d param2(item)=%d",param1,param2);
 		DebugPrint("%d selected item: %d (found? %d info: %s)", param1,param2, found, info);
-		//LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);
-		//DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
+		//LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);//DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
 		#endif
 		if ( 1<param1 || param1>MaxClients ) 
 			{
@@ -377,8 +375,7 @@ if (action == MenuAction_Select)
 				}
 			PlayerVote[param1-1]=param2;
 			ItemVote[param2]++;			
-			//if (!RemoveMenuItem(menu, param2)) LogMessage("Error in RemoveMenuItem(%d)",param2);			
-			//Format(Title,MENU_ITEM_LEN,"%s [%d]",MenuItems[param2],ItemVote[param2]);			
+			//if (!RemoveMenuItem(menu, param2)) LogMessage("Error in RemoveMenuItem(%d)",param2);//Format(Title,MENU_ITEM_LEN,"%s [%d]",MenuItems[param2],ItemVote[param2]);			
 			#if defined DEBUG
 			LogMessage("int item for %i is %s ",param2,Title);
 			#endif				
@@ -515,7 +512,6 @@ void BuildMapVoteMenu(){
 //*****************************************************************************
 vMenu = new Menu(MenuHandler1,MENU_ACTIONS_ALL);//warning 240: 'MenuAction:' is an old-style tag operation; use view_as<MenuAction>(expression) instead
 //vMenu = view_as<MenuAction>(MenuHandler1);//warning 237: coercing functions to and from primitives is unsupported and will be removed in the future
-
 Format(Title,MENU_ITEM_LEN,"%t",MENU_TITLE,g_vote_countdown);
 vMenu.SetTitle(Title);
 //Make random map list
@@ -531,7 +527,7 @@ vMenu.SetTitle(Title);
 	//			SQL_FetchString(IPQuery,0,ip,sizeof(ip));
 }*/
 /*BuildMapListForVoteMenu();*/
-for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT;i++)
+for (int i=1+CandidateCount;i!=MENU_ITEMS_COUNT-g_item_shift;i++)
 	AddRandomMenuMapItem();	//strcopy(MenuItems[i],MENU_ITEM_LEN,PopularMenuItems[i]);	
 
 for (int i=0;i!=MAX_PLAYERS;i++)	
@@ -545,10 +541,6 @@ ItemVote[g_item_shift]=0;
 Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
 vMenu.AddItem("", Title);
-
-#if defined DEBUG
-for (int i=0;i!=MENU_ITEMS_COUNT;i++) DebugPrint("%d %s",i,MenuItems[i]);
-#endif
 for (int i=g_item_shift+1;i!=MENU_ITEMS_COUNT;i++)
 	{
 	#if defined DEBUG	
@@ -574,7 +566,7 @@ vMenu.ExitBackButton=false;
 	// char mapName[32];
 	// for (int i = 0; i < mapCount; i++)
 		// {
-		// GetArrayString(g_MapList, i, mapName, sizeof(mapName));		
+		// GetArrayString(g_MapList, i, mapName, sizeof(mapName));
 		// #if defined DEBUG
 		// DebugPrint(mapName);		
 		// #endif
@@ -604,7 +596,7 @@ void AddMenuMapItem(char[] Map){
 //***********************************************
 if (g_voting) return false;
 if (!IsMapValid(Map)) return false;
-if (CandidateCount+1==MENU_ITEMS_COUNT)return false;
+if (CandidateCount+1==MENU_ITEMS_COUNT-g_item_shift)return false;
 char currentMap[PLATFORM_MAX_PATH];
 GetCurrentMap(currentMap, sizeof(currentMap));
 if (strcmp(Map, currentMap, false)==0)return false;
@@ -614,7 +606,6 @@ CandidateCount++;
 strcopy(MenuItems[CandidateCount],MENU_ITEM_LEN,Map);
 return true;
 }
-
 //*****************************************************************************
 public int Handler_MapSelectMenu(Menu menu, MenuAction action, int param1, int param2){
 //*****************************************************************************
@@ -634,7 +625,6 @@ void BuildMapMenu(){
 //*****************************************************************************	
 delete g_MapMenu;
 g_MapMenu = new Menu(Handler_MapSelectMenu, MENU_ACTIONS_DEFAULT|MenuAction_DrawItem|MenuAction_DisplayItem);
-//char map[PLATFORM_MAX_PATH];
 char currentMap[PLATFORM_MAX_PATH];
 GetCurrentMap(currentMap, sizeof(currentMap));
 if (g_mapFileSerial != -1) 
