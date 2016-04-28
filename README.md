@@ -43,7 +43,7 @@ National words are supported, but case sensitive.
 - [x] Add cvar for customizing key_word v.0.3
 - [x] Add translations support v.0.2
 
-
+https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet  
 ##Changelog
 * 0.5  
   -Add mark to selected item. Добавлена метка выбранного пункта меню
