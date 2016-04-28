@@ -45,14 +45,14 @@ National words are supported, but case sensitive.
 
 
 ##Changelog
-* 0.5
---Add mark to selected item. Добавлена метка выбранного пункта меню
+* 0.5  
+  -Add mark to selected item. Добавлена метка выбранного пункта меню
  
-* 0.4
---Add select map for vote like RTV.
+* 0.4  
+  Add select map for vote like RTV.
  
-* 0.3
-- Added CVAR sm_votemap_keywords - кey words for demand map vote.
+* 0.3⋅⋅
+⋅⋅- Added CVAR sm_votemap_keywords - кey words for demand map vote.
 
 * 0.2
 - Added translation. Used phrases from common, nominations, basevotes, mapchooser, rockthevote,
@@ -65,12 +65,3 @@ that guarantees more internationalization. Интернационализаци�
 This plugin is meant to be run with Sourcemod 1.7 or above.
 
 This is work in progress and is not a final product
-
-
-<dl>
-  <dt>Definition list</dt>
-  <dd>Is something people use sometimes.</dd>
-
-  <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. Use HTML <em>tags</em>.</dd>
-</dl>
