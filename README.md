@@ -38,27 +38,40 @@ National words are supported, but case sensitive.
 Можно использовать слова на любом языке. Ключевое слово чувствительно к регистру.
 
 ##Plans
--Add translations support
--Add select maps for vote like RTV.
+
 -Add sound accompaniment.
--Add cvar for customizing key_word
+-Добавить звуковое сопровождение 
 -Convert more internal stuff into CVARS
 -Add sm_mapvote_dontchange Specifies if a 'Don't Change' option should be added to early votes (like rockthevote)
 -Add sm_mapvote_include Specifies how many maps to include in the vote.
 -Если единственный пользовтель (не считая ботов) подал запрос на смену карты, не зависимо от sm_rtv_minplayers разрешить голосование
--
+-Add select maps for vote like RTV v.0.4
+-Add cvar for customizing key_word v.0.3
+-Add translations support v.0.2
 
 
 ##Changelog
+* Versoin 0.5
+* 
+- Add maek to selected item
+- Добавлена метка выбранного пункта меню
+- 
 * Versoin 0.4
 - Add select map for vote like RTV.
 * Versoin 0.3
 - Added CVAR sm_votemap_keywords - кey words for demand map vote.
 * Versoin 0.2
+
 - Added translation. Used phrases from common, nominations, basevotes, mapchooser, rockthevote,
 that guarantees more internationalization.
+
+- Интернационализация
+
 * Versoin 0.1 
 - Initial release.
+ 
+ 
+
 
 
 
