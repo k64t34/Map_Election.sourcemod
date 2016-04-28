@@ -25,14 +25,16 @@ Download the attached [zip archive](/Map_Election.zip ) and extract to your game
 
 addons
 
-  plugins
-  
-    map_vote.smx
-    
-  transletion
-  
-    map_Elections.phrases.txt 
-    
+└sourcemod
+
+.├plugins 
+
+.│.└map_Election.smx 
+
+.└transletion 
+
+...└map_Elections.phrases.txt
+
 
 ##Usage:
 say key_word [map_name]
@@ -56,27 +58,20 @@ National words are supported, but case sensitive.
 
 
 ##Changelog
-* Versoin 0.5
+* 0.5
+- Add mark to selected item. Добавлена метка выбранного пункта меню
  
-- Add maek to selected item
-- Добавлена метка выбранного пункта меню
- 
-* Versoin 0.4
+* 0.4
 - Add select map for vote like RTV.
-- 
-* Versoin 0.3
-
+ 
+* 0.3
 - Added CVAR sm_votemap_keywords - кey words for demand map vote.
 
-* Versoin 0.2
-
+* 0.2
 - Added translation. Used phrases from common, nominations, basevotes, mapchooser, rockthevote,
-that guarantees more internationalization.
+that guarantees more internationalization. Интернационализация
 
-- Интернационализация
-
-* Versoin 0.1 
-
+* 0.1 
 - Initial release.
 
 ##Other Information:
