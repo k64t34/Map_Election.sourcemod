@@ -32,6 +32,15 @@ You can set any key words in CVAR sm_votemap_keywords.
 National words are supported, but case sensitive.
 
 Можно использовать слова на любом языке. Ключевое слово чувствительно к регистру.
+##Config CVAR  
+
+mp_freezetime  
+sv_alltalk  
+
+sm_vote_delay  
+sm_mapvote_voteduration  
+sm_rtv_minplayers  
+sm_votemap_keywords  
 
 ##Plans
 - [ ] Add sound accompaniment. Добавить звуковое сопровождение 
