@@ -33,14 +33,18 @@ National words are supported, but case sensitive.
 
 Можно использовать слова на любом языке. Ключевое слово чувствительно к регистру.
 ##Config CVAR  
+sm_votemap_keywords  
+  Key words for demand map vote. Delimiter is ;  
+  Слова, используемые в чате say или say_team для начала голосования.
+  Default: sm_votemap_keywords "votemap;карту"  
 
+###Used from other plugins
 mp_freezetime  
-sv_alltalk  
-
+sv_alltalk    
 sm_vote_delay  
 sm_mapvote_voteduration  
 sm_rtv_minplayers  
-sm_votemap_keywords  
+
 
 ##Plans
 - [ ] Add sound accompaniment. Добавить звуковое сопровождение 
