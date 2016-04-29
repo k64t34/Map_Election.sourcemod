@@ -55,19 +55,19 @@ sm_votemap_keywords
 https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet  
 ##Changelog
 * 0.5  
-  -Add mark to selected item. Добавлена метка выбранного пункта меню
+  - Add mark to selected item. Добавлена метка выбранного пункта меню  
  
 * 0.4  
-  Add select map for vote like RTV.
+  - Add select map for vote like RTV.⋅⋅
  
 * 0.3⋅⋅
-⋅⋅- Added CVAR sm_votemap_keywords - кey words for demand map vote.
+  - Added CVAR sm_votemap_keywords - кey words for demand map vote.⋅⋅
 
-* 0.2
+* 0.2⋅⋅
 - Added translation. Used phrases from common, nominations, basevotes, mapchooser, rockthevote,
 that guarantees more internationalization. Интернационализация
 
-* 0.1 
+* 0.1⋅⋅
 - Initial release.
 
 ##Other Information:
