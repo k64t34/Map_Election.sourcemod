@@ -55,7 +55,8 @@ sm_votemap_keywords
 https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet  
 ##Changelog
 * 0.5  
-  - Add mark to selected item. Добавлена метка выбранного пункта меню  
+ - Add mark to selected item.  
+  Добавлена метка выбранного пункта меню  
  
 * 0.4  
   - Add select map for vote like RTV.⋅⋅
@@ -68,7 +69,7 @@ https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 that guarantees more internationalization. Интернационализация
 
 * 0.1⋅⋅
-- Initial release.
+  - Initial release.
 
 ##Other Information:
 This plugin is meant to be run with Sourcemod 1.7 or above.
