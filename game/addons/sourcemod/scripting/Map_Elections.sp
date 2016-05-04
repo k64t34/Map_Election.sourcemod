@@ -10,7 +10,7 @@
 //#define DEBUG_PLAYER "K64t"
 #define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.5.3" //Fix bug voting interface
+#define PLUGIN_VERSION "0.5.4" //
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
