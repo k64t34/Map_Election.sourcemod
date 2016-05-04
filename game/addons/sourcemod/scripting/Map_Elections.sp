@@ -74,7 +74,7 @@ public Plugin myinfo = {
 	author = PLUGIN_AUTHOR,
 	description = "Provides map voting and immediately showing the players choice .Players can agree during voting and change their choice to any map.",
 	version = PLUGIN_VERSION,
-	url = ""};
+	url = "https://github.com/k64t34/Map_Election"};
 //***********************************************
 public void OnPluginStart(){
 //***********************************************
