@@ -26,3 +26,23 @@
 2. Языки в Sourcemod
 https://wiki.alliedmods.net/Ru:Format_Class_Functions_(SourceMod_Scripting)
 https://wiki.alliedmods.net/Ru:Translations_(SourceMod_Scripting)	
+
+
+Поиск бага
+
+0
+1
+2
+3
+4
+5
+6
+
+g_item_shift - сдвиг меню
+
+PlayerVote[MAX_PLAYERS]- номер пункта меню голосования 0..6
+ItemVote[MENU_ITEMS_COUNT] - Количество голосов за пункт меню 0..6
+MenuItems[MENU_ITEMS_COUNT][MENU_ITEM_LEN] -пункты меню 0 - неменять, 1-de_dust2 и т.д.
+
+Лог выдал [Map_Elections.smx] MenuHandler param1=7 is out of range. Must be client id
+ 

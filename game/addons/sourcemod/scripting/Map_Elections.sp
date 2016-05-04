@@ -10,7 +10,7 @@
 //#define DEBUG_PLAYER "K64t"
 #define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.5.1" //Correct nomination list
+#define PLUGIN_VERSION "0.5.3" //Fix bug voting interface
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
@@ -273,12 +273,10 @@ public void ReDisplayMenu(){
 for(int i = 1; i <= MaxClients; i++) 
 	{
 	if (IsClientConnected(i))
-		if (IsClientInGame(i))			
-			if (!IsFakeClient(i))	
-			{
-			//stpcpy(bufftmp);	
-			if (!vMenu.Display(i, g_vote_countdown))										
-			//if (!vMenu.Display(i, g_vote_time))									
+		if (IsClientInGame(i))						
+			if (!IsFakeClient(i))			
+			{			
+			if (!vMenu.Display(i, g_vote_countdown))
 					LogError("DisplayMenu to client %d faild",i);
 				
 			}		
@@ -354,16 +352,16 @@ public int  MenuHandler1(Menu menu, MenuAction action, int param1/*-client*/, in
 if (action == MenuAction_Select)
 	{
 		#if defined DEBUG		
-		char info[32];
-		bool found = GetMenuItem(menu, param2, info, sizeof(info));	//LogMessage("MenuAction_Select. param1(client)=%d param2(item)=%d",param1,param2);
-		DebugPrint("%d selected item: %d (found? %d info: %s)", param1,param2, found, info);
+		//char info[32];
+		//bool found = GetMenuItem(menu, param2, info, sizeof(info));	//LogMessage("MenuAction_Select. param1(client)=%d param2(item)=%d",param1,param2);
+		DebugPrint("%d selected item %d", param1,param2);
 		//LogMessage("Client %d selected item: %d (found? %d info: %s)",param1, param2, found, info);//DebugPrint("MenuAction_Select.Client %d selected item: %d (found? %d info: %s)",param1,param2,found,info);
 		#endif
-		if ( 1<param1 || param1>MaxClients ) 
+		if ( param1 < 1 || MaxClients < param1 ) 
 			{
 			LogError("MenuHandler param1=%d is out of range. Must be client id",param1);
 			}
-		else if (param2<0 || param2>MENU_ITEMS_COUNT)
+		else if (param2 < 0 || param2 > MENU_ITEMS_COUNT)
 			{
 			LogError("MenuHandler param2=%d is out of range. Must be item id",param1);
 			}		
@@ -374,10 +372,9 @@ if (action == MenuAction_Select)
 				ItemVote[PlayerVote[param1-1]]--;
 				}
 			PlayerVote[param1-1]=param2;
-			ItemVote[param2]++;			
-			//if (!RemoveMenuItem(menu, param2)) LogMessage("Error in RemoveMenuItem(%d)",param2);//Format(Title,MENU_ITEM_LEN,"%s [%d]",MenuItems[param2],ItemVote[param2]);			
+			ItemVote[param2]++;
 			#if defined DEBUG
-			LogMessage("int item for %i is %s ",param2,Title);
+			DebugPrint("Client %d select item %d.PlayerVote[%d]=%d ItemVote[%d]=%d",param1,param2,param1-1,PlayerVote[param1-1],param2,ItemVote[param2]);
 			#endif				
 			vMenu.Display(param1, g_vote_countdown);
 		}
@@ -394,26 +391,23 @@ else if (action == MenuAction_DisplayItem)
 	DebugPrint("MenuAction_DisplayItem. %d %d",param1,param2);
 	#endif
 	if (param2<g_item_shift)return 0;
-	else
-		{		
-		if (param2<=g_item_shift)		
-			{			
-			if 	(ItemVote[param2]==0)
-				Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
-			else
-				Format(Title,MENU_ITEM_LEN,"%t[%d]",ITEM_DO_NOT_CHANGE,ItemVote[param2]);	
-			}	
+	else if (param2==g_item_shift)		
+		{			
+		if 	(ItemVote[param2]==0)
+			Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 		else
-			{
-			char ItemShift[MENU_ITEMS_COUNT]="\0";
-			if (MENU_ITEMS_COUNT>ItemVote[param2])		
-				Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
-			if 	(ItemVote[param2]==0)
-				Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
-			else
-				Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2-g_item_shift],ItemVote[param2]);
-			}
-		}
+			Format(Title,MENU_ITEM_LEN,"%t[%d]",ITEM_DO_NOT_CHANGE,ItemVote[param2]);	
+		}	
+	else
+		{
+		char ItemShift[MENU_ITEMS_COUNT]="";
+		if (MENU_ITEMS_COUNT>ItemVote[param2])		
+			Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
+		if 	(ItemVote[param2]==0)			
+			Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
+		else
+			Format(Title,MENU_ITEM_LEN,"%s%s[%d]",ItemShift,MenuItems[param2-g_item_shift],ItemVote[param2]);
+		}		
 	if (PlayerVote[param1-1] ==param2)
 			StrCat(Title, sizeof(Title),item_select_mark);
 		
