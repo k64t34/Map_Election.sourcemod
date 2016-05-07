@@ -10,12 +10,13 @@
 //#define DEBUG_PLAYER "K64t"
 #define DEBUG_PLAYER "Kom64t"
 #define PLUGIN_NAME  "Map_Elections"
-#define PLUGIN_VERSION "0.5.4" //
+#define PLUGIN_VERSION "0.6" //Fill char
 
 #define MENU_ITEM_LEN 64
 #define MENU_ITEMS_COUNT 7
 #define MENU_ITEMS_SHIFT 0
 #define MENU_ITEMS_MARK "√"
+#define MENU_ITEMS_FILL ' '
 #define SND_VOTE_START	"k64t\\votestart.mp3"
 #define SND_VOTE_FINISH	"k64t\\votefinish.mp3"
 #define MAX_KEY_WORDS 7
@@ -47,6 +48,8 @@ char key_word[MAX_KEY_WORDS][MENU_ITEM_LEN];
 Handle cvar_g_version;
 int g_item_shift=MENU_ITEMS_SHIFT; //Shift menu items down. Start item will g_item_shift
 Handle cvar_g_item_shift=null;
+char g_item_fill=MENU_ITEMS_FILL; //Char fill item string
+Handle cvar_g_item_fill=null;
 // Global Var
 bool g_elect=false; //been requested a vote
 bool g_voting=false; //there is a voting;
@@ -124,6 +127,12 @@ if ( cvar_g_item_shift == null )
 	CreateConVar("sm_menu_item_shift","0","Skip the given number of items in the vote menu",0.0,true,0,true,4.0);
 	cvar_g_item_shift = FindConVar("sm_menu_item_shift");
     }
+cvar_g_item_fill = FindConVar("sm_menu_item_fill");	
+if ( cvar_g_item_fill == null )
+    {
+	CreateConVar("sm_menu_item_fill"," ","Character to fill menu item");
+	cvar_g_item_fill = FindConVar("sm_menu_item_fill");
+    }
 //cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);                                                                                           
 //cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY);
 cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -170,6 +179,7 @@ PrintToServer("[%s] OnMapStart",PLUGIN_NAME);
 g_elect=false;
 g_voting=false;
 CandidateCount=0;
+g_item_fill=MENU_ITEMS_FILL;
 AutoExecConfig(true, "Map_Elections");
 for (int i=0;i!=MAX_PLAYERS;i++)PlayerVote[i]=-1;//Reset players voice
 //Read MapList
@@ -201,6 +211,7 @@ g_min_players_demand=GetConVarInt(cvar_sm_rtv_minplayers);
 g_vote_delay=GetTime()+GetConVarInt(cvar_sm_vote_delay);
 #endif
 g_item_shift=GetConVarInt(cvar_g_item_shift);
+g_item_fill=GetConVarChar(cvar_g_item_fill);
 }
 //***********************************************
 public Action Command_Say(int client, int args){
@@ -402,7 +413,7 @@ else if (action == MenuAction_DisplayItem)
 		{
 		char ItemShift[MENU_ITEMS_COUNT]="";
 		if (MENU_ITEMS_COUNT>ItemVote[param2])		
-			Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT-ItemVote[param2]);
+			FillChar(ItemShift, MENU_ITEMS_COUNT,g_item_fill,MENU_ITEMS_COUNT-ItemVote[param2]);			
 		if 	(ItemVote[param2]==0)			
 			Format(Title,MENU_ITEM_LEN,"%s%s",ItemShift,MenuItems[param2-g_item_shift]);
 		else
@@ -530,7 +541,7 @@ for (int i=0;i!=MAX_PLAYERS;i++)
 for (int i=0;i!=g_item_shift;i++)	
 	vMenu.AddItem("", ""/*,ITEMDRAW_IGNORE*//*TEMDRAW_SPACER*/);//https://wiki.alliedmods.net/Menus_Step_By_Step_(SourceMod_Scripting)
 char ItemShift[MENU_ITEMS_COUNT];
-Fill(ItemShift, MENU_ITEMS_COUNT,' ',MENU_ITEMS_COUNT);
+FillChar(ItemShift, MENU_ITEMS_COUNT,g_item_fill,MENU_ITEMS_COUNT);
 ItemVote[g_item_shift]=0;
 Format(Title,MENU_ITEM_LEN,"%t",ITEM_DO_NOT_CHANGE);
 strcopy(MenuItems[0],MENU_ITEM_LEN,Title);
