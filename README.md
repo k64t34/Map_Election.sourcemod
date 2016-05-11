@@ -1,6 +1,6 @@
 # Map_Election
 
-![GitHub Logo](/fy_xbox0086.png)
+![GitHub Logo](/en.gif)
 
 The plugin works like RTV (Rock The Vote) till the moment vote. While voting, the panel is displayed all the time of voting. The player can see a selection of other players and can change their choice in favor of the other map.
 
@@ -20,6 +20,7 @@ Sourcemod плагин для голосования выбора карты.
 Голосование запускается в начале раунда, предворительно выставив  mp_freeztime  равно времени голосования.
 Т.о. игровой мир как бы останавливается на время голосования и игроки полностью могут состредоточится на голосовании.
 
+![GitHub Logo](/ru.gif)
 ##Installation instructions
 Download the attached [zip archive](/Map_Election.zip ) and extract to your game folder.
 
