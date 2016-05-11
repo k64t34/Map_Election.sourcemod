@@ -130,7 +130,7 @@ if ( cvar_g_item_shift == null )
 cvar_g_item_fill = FindConVar("sm_menu_item_fill");	
 if ( cvar_g_item_fill == null )
     {
-	CreateConVar("sm_menu_item_fill"," ","Character to fill menu item");
+	CreateConVar("sm_menu_item_fill"," ","Character for customization fill space before items");
 	cvar_g_item_fill = FindConVar("sm_menu_item_fill");
     }
 //cvar_g_version = CreateConVar("mapelection_version",PLUGIN_VERSION,"MapElection version",FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD|FCVAR_REPLICATED);                                                                                           
