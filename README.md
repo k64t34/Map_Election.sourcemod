@@ -37,6 +37,8 @@ National words are supported, but case sensitive.
   Key words for demand map vote. Delimiter is ;  
   Слова, используемые в чате say или say_team для начала голосования.  
   Default: sm_votemap_keywords "votemap;карту"  
+####sm_menu_item_fill
+  Character for customization fill space before items  
 
 ###Used from other plugins
 ####mp_freezetime  
@@ -58,12 +60,16 @@ National words are supported, but case sensitive.
 
 https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet  
 ##Changelog
+* 0.6  
+ - Added CVAR sm_menu_item_fill for customiztion fill space before items.  
+  Добавлена CVAR sm_menu_item_fill для настройки заполнения пространства перед пунктами меню.     
+
 * 0.5  
- - Add mark to selected item.  
+ - Added mark to selected item.  
   Добавлена метка выбранного пункта меню  
  
 * 0.4  
-  - Add select map for vote like RTV.
+  - Added select map for vote like RTV.
  
 * 0.3  
   - Added CVAR sm_votemap_keywords - кey words for demand map vote.⋅⋅
